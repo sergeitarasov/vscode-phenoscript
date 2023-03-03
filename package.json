@@ -1,0 +1,66 @@
+{
+  "name": "phenoscript",
+  "displayName": "Phenoscript",
+  "description": "Syntax highlight for the Phenoscript language",
+  "version": "0.0.1",
+  "publisher": "tarasov-lab",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Themes"
+  ],
+  "keywords": [
+    "biology",
+    "ontology",
+    "semantic description",
+    "one dark"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "phs",
+      "aliases": ["Phenoscript", "phs"],
+      "extensions": [".phs"],
+      "configuration": "./language-configuration.json"
+    }],
+    "snippets": [
+      {
+        "language": "phs",
+        "path": "./snippets/phs-snippets.json"
+      }
+    ],
+    "grammars": [{
+      "language": "phs",
+      "scopeName": "source.phs",
+      "path": "./syntaxes/phs.tmLanguage.json"
+    }],
+    "themes": [
+      {
+        "label": "Phenoscript Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/phs-dark.json"
+      }],
+    "configuration": [
+      {
+        "workbench.colorCustomizations": {
+
+          "editor.selectionBackground": "#FFFF96", 
+          
+          "editor.findMatchBackground": "#FFFF96", 
+          
+          "editor.selectionHighlightBackground": "#8f0541d4", 
+          
+          "editor.findMatchHighlightBackground": "#00000000", 
+          
+          "editor.wordHighlightBackground": "#00000000", 
+          
+          "editorBracketMatch.border": "#FF0000",   
+          
+          "editorBracketMatch.background": "#0052cc"  
+          }
+      }
+    ]
+  }
+}
