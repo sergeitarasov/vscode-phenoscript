@@ -2,11 +2,11 @@
   "name": "phenoscript",
   "displayName": "Phenoscript",
   "description": "Syntax highlight for the Phenoscript language",
-  "version": "0.0.1",
+  "version": "0.0.11",
   "publisher": "tarasov-lab",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.74.0"
+    "vscode": "^1.73.1"
   },
   "categories": [
     "Programming Languages",

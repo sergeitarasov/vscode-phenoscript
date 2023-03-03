@@ -7,7 +7,7 @@
 ![](https://github.com/sergeitarasov/vscode-phenoscript/blob/main/example.png?raw=true)
 <!-- > Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow. -->
 
-## Sponsors
+## Funding
 This project is supported by the [Academy of Finland](https://www.aka.fi/en/) grants 339576 and 346294.
 
 ## Installing
@@ -30,7 +30,7 @@ n/a
 ## Release Notes
 This is the first release that is currently in the testing phase.
 
-### 0.0.1
+### 0.0.11
 Syntax highlight, dark theme, snippets.
 
 <!-- ### 1.0.1
