@@ -1,24 +1,19 @@
-#  Phenoscript syntax highlight. VS Code extension
- This is an extension for [VS Code](https://code.visualstudio.com) that provides syntax highlight for [Phenoscript language](https://github.com/sergeitarasov/PhenoScript). The theme is based on [One Dark Teme](https://github.com/akamud/vscode-theme-onedark).
+# VS Code extension for Phenoscript
+ This is an extension for [VS Code](https://code.visualstudio.com) that provides syntax highlight and snippet viewer for [Phenoscript language](https://github.com/sergeitarasov/PhenoScript). It is available for free in the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com).
+
 
 
 ## Features
-Thi is Phenoscript
+![](https://github.com/sergeitarasov/vscode-phenoscript/blob/main/example.png?raw=true)
+<!-- > Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow. -->
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## Sponsors
+This project is supported by the [Academy of Finland](https://www.aka.fi/en/) grants 339576 and 346294.
 
-For example if there is an image subfolder under your extension project workspace:
-<!-- 
-\!\[feature X\]\(images/feature-x.png\) -->
+## Installing
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
+Install [VS Code](https://code.visualstudio.com) and launch it. Install the Phenoscript extension from the Visual Studio Code Marketplace by clicking on "Extensions" on the left hand side bar.
+<!-- ## Extension Settings
 Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
 
 For example:
@@ -26,29 +21,27 @@ For example:
 This extension contributes the following settings:
 
 * `phs.enable`: Enable/disable this extension.
-* `phs.thing`: Set to `blah` to do something.
+* `phs.thing`: Set to `blah` to do something. -->
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+n/a
 
 ## Release Notes
-notes
-Users appreciate release notes as you update your extension.
+This is the first release that is currently in the testing phase.
 
-### 1.0.0
-rrr
-Initial release of ...
+### 0.0.1
+Syntax highlight, dark theme, snippets.
 
-### 1.0.1
+<!-- ### 1.0.1
 
 Fixed issue #.
 
 ### 1.1.0
 
-Added features X, Y, and Z.
+Added features X, Y, and Z. -->
 
----
+<!-- ---
 
 ## Working with Markdown
 
@@ -56,7 +49,7 @@ You can author your README using Visual Studio Code. Here are some useful editor
 
 * Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
 * Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets. -->
 
 <!-- ## For more information
 
@@ -64,3 +57,6 @@ You can author your README using Visual Studio Code. Here are some useful editor
 * [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/) -->
 
 
+## Credits
+
+The theme is based on [One Dark Teme](https://github.com/akamud/vscode-theme-onedark).
