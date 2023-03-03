@@ -18,6 +18,7 @@
     "semantic description",
     "one dark"
   ],
+  "icon": "icon.png",
   "contributes": {
     "languages": [{
       "id": "phs",
@@ -62,5 +63,17 @@
           }
       }
     ]
+  },
+  "bugs": {
+      "url": "https://github.com/sergeitarasov/vscode-phenoscript/issues",
+      "email": "sergei.tarasov@helsinki.fi"
+  },
+  "homepage": "https://github.com/sergeitarasov/vscode-phenoscript",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/sergeitarasov/vscode-phenoscript"
+  },
+  "sponsor": {
+      "url": "https://github.com/sergeitarasov"
   }
 }

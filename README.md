@@ -1,5 +1,5 @@
-# phenoscript README
-Phenoscript is the 
+#  Phenoscript syntax highlight. VS Code extension
+ This is an extension for [VS Code](https://code.visualstudio.com) that provides syntax highlight for [Phenoscript language](https://github.com/sergeitarasov/PhenoScript). The theme is based on [One Dark Teme](https://github.com/akamud/vscode-theme-onedark).
 
 
 ## Features
