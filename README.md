@@ -1,4 +1,4 @@
-# VS Code extension for Phenoscript
+# VS Code extension for Phenoscript language
 
  <p align="left">
   <img src="https://raw.githubusercontent.com/sergeitarasov/vscode-phenoscript/main/icon.png" width="200" title="Phenoscript logo">
