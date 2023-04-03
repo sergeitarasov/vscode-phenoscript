@@ -21,10 +21,58 @@ OTU={ # Gryonoides_brasiliensis
       measurement_datum:mrad_brasiliensis .has_measurement_value 4.5;
     (ed, ed, ed) >> node;
 
-  }
+    .iao-is_quality_measured_as
+    iao-measurement_datum
+    .iao-has_measurement_value
+    .ro-increased_in_magnitude_relative_to |>|
+    .ro-decreased_in_magnitude_relative_to |<|
+    .has_count |=| !! add http://github.com/sergeitarasov/PhenoScript/gryo/has_count
+    m
+
+1. 
+scape >> length |>| length << compound_eye
+'E1' >> 'Q1' |>| 'Q2' << 'E2'
+
+2.
+eye:e1 >> length .iao-is_quality_measured_as iao-measurement_datum:m1 .iao-has_measurement_unit_label width << eye:e1;
+                                             iao-measurement_datum:m1 .iao-has_measurement_value 4.5;
+
+'E1' >> 'Q1' .iao-is_quality_measured_as iao-measurement_datum':XXX' .iao-has_measurement_unit_label 'Q2' << 'E2';
+                                        iao-measurement_datum':XXX' .iao-has_measurement_value 'Val';
+
+
+3. body >> length .iao-is_quality_measured_as iao-measurement_datum:m1 .iao-has_measurement_unit_label millimeter;
+                                             iao-measurement_datum:m1 .iao-has_measurement_value 2.0;
+
+'E1' >> 'Q1' .iao-is_quality_measured_as iao-measurement_datum':XXX' .iao-has_measurement_unit_label 'Q2';
+                                         iao-measurement_datum':XXX' .iao-has_measurement_value 'Val';
+
+4. has count 
+
+5. body !> tibia;
+ 'E1' !> 'E2'
+
+
+
+'E1' >> 'Q1' .iao-is_quality_measured_as iao-measurement_datum':XXX' .iao-has_measurement_unit_label 'Q2' << 'E2';
+      iao-measurement_datum':XXX' .iao-has_measurement_value 'Val';
+
+'E1' >> 'Q1' .iao-is_quality_measured_as iao-measurement_datum:md-8cef49 .iao-has_measurement_unit_label 'Q2';
+																					iao-measurement_datum:md-8cef49 .iao-has_measurement_value 'Real';
+
+
+
+id-88c959
+
+
+  } 
 
 }
 
+
+
+= |<| 
+ 
 # This is another species
 
 OTU = { # Gryonoides_flaviclavus_flaviclavus
@@ -42,7 +90,34 @@ OTU = { # Gryonoides_flaviclavus_flaviclavus
     female_organism:G_flaviclavus_flaviclavus !> fifth_flagellomere !> multiporous_gustatory_sensillum;
     female_organism:G_flaviclavus_flaviclavus !> radicle:rad_flaviclavus_flaviclavus !>> elongated;
 
+
   }
 
 }
 
+
+OTU = { # ADD SP NAME
+  
+  OTU_DATA = {
+   'E1' >> 'Q1' |<| 'Q2' << 'E2';
+ 'E1' >> 'Q1' .iao-is_quality_measured_as iao-measurement_datum:md-eac4c8 .iao-has_measurement_unit_label 'Q2' << 'E2';
+																					iao-measurement_datum:md-eac4c8 .iao-has_measurement_value 'Real';
+
+'E1' >> 'Q1' .iao-is_quality_measured_as iao-measurement_datum:md-3d856c .iao-has_measurement_unit_label 'Q2';
+																					iao-measurement_datum:md-3d856c .iao-has_measurement_value 'Real'; 
+.rdfs-label 'G rbnd';
+leg .is_a legs
+
+  }
+  
+  OPHU_LIST = {}
+
+}
+
+OTU = { # ADD SP NAME
+  
+  OTU_DATA = {}
+  
+  OPHU_LIST = {}
+
+}

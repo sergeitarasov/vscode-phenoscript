@@ -4,7 +4,7 @@
   "scopeName": "source.phs",
   "patterns": [
     {
-      "match": "\\b(OTU|DATA|TRAITS|linksTraits|this|cls|exclude|function|if|break|next|repeat|else|for|return|switch|while|in|invisible)\\b",
+      "match": "\\b(OTU|DATA|TRAITS|linksTraits|this|cls|function|if|break|next|repeat|else|for|return|switch|while|in|invisible)\\b",
       "name": "support.class.phs"
     },
     {
@@ -91,7 +91,7 @@
       "name": "constant.numeric.phs"
     },
     {
-      "match": "\\b(True|False|NULL|NA|Inf|NaN)\\b",
+      "match": "\\b(T|F|TRUE|FALSE|NULL|NA|Inf|NaN)\\b",
       "name": "constant.language.phs"
     },
     {
@@ -109,10 +109,6 @@
     {
       "match": "(> |< | >> | << |<- | <<- |-> | ->> | [|]=[|] | [|]>[|] | [|]<[|] )",
       "name": "entity.name.function.phs"
-    },
-    {
-      "match": "(=)",
-      "name": "keyword.operator.assignment.phs"
     },
     {
       "match": "(!)",
@@ -171,6 +167,21 @@
     {
       "captures": {
         "1": {
+          "name": "entity.name.function.phs"
+        },
+        "2": {
+          "name": "keyword.operator.assignment.phs"
+        },
+        "3": {
+          "name": "keyword.control.phs"
+        }
+      },
+      "match": "([[:alpha:].][[:alnum:]._]*)\\s*(<-)\\s*(function)",
+      "name": "meta.function.phs"
+    },
+    {
+      "captures": {
+        "1": {
           "name": "entity.name.tag.phs"
         },
         "4": {
@@ -183,7 +194,7 @@
     {
       "captures": {
         "1": {
-          "name": "support.class.phs"
+          "name": "variable.parameter.phs"
         },
         "2": {
           "name": "keyword.operator.assignment.phs"

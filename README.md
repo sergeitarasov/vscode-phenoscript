@@ -1,5 +1,12 @@
 # VS Code extension for Phenoscript
- This is an extension for [VS Code](https://code.visualstudio.com) that provides syntax highlight and snippet viewer for [Phenoscript language](https://github.com/sergeitarasov/PhenoScript). It is available for free in the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com).
+
+ <p align="left">
+  <img src="https://raw.githubusercontent.com/sergeitarasov/vscode-phenoscript/main/icon.png" width="300" title="Phenoscript logo">
+</p> 
+
+This is an extension for [VS Code](https://code.visualstudio.com) that provides syntax highlight and snippet viewer for [Phenoscript language](https://github.com/sergeitarasov/vscode-phenoscript). It is available for free in the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com). 
+
+Phenoscript is a computer language designed for describing species using ontologies for downstream automatic comparison of their traits. Such analyses can be performed using the Python package [Phenospy](https://pypi.org/project/phenospy/).
 
 
 
