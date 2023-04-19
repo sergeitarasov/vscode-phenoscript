@@ -11,8 +11,13 @@ Phenoscript is a computer language designed for describing species using ontolog
 
 
 ## Features
-![](https://github.com/sergeitarasov/vscode-phenoscript/blob/main/example.png?raw=true)
+![](https://raw.githubusercontent.com/sergeitarasov/vscode-phenoscript/main/example.png)
 <!-- > Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow. -->
+
+
+## Documentation
+
+See [Wiki for details](https://github.com/sergeitarasov/PhenoScript/wiki).
 
 ## Funding
 This project is supported by the [Academy of Finland](https://www.aka.fi/en/) grants 339576 and 346294.

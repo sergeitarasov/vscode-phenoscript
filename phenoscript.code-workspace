@@ -2,9 +2,6 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../../../../.vscode/extensions/tarasov-lab.phenoscript-0.0.11"
 		}
 	],
 	"settings": {}
