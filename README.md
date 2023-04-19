@@ -1,8 +1,8 @@
 # VS Code extension for Phenoscript language
 
- <p align="left">
+ <!-- <p align="left">
   <img src="https://raw.githubusercontent.com/sergeitarasov/vscode-phenoscript/main/icon.png" width="300" title="Phenoscript logo">
-</p> 
+</p>  -->
 
 This is an extension for [VS Code](https://code.visualstudio.com) that provides syntax highlight and snippet viewer for [Phenoscript language](https://github.com/sergeitarasov/vscode-phenoscript). It is available for free in the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com). 
 
