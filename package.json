@@ -2,11 +2,11 @@
   "name": "phenoscript",
   "displayName": "Phenoscript",
   "description": "Syntax highlight for the Phenoscript language",
-  "version": "0.0.17",
+  "version": "0.0.19",
   "publisher": "tarasov-lab",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.73.1"
+    "vscode": "^1.83.1"
   },
   "categories": [
     "Programming Languages",
@@ -19,7 +19,21 @@
     "one dark"
   ],
   "icon": "icon.png",
+  "activationEvents": [],
+  "main": "./extension.js",
   "contributes": {
+    "commands": [{
+      "command": "phenoscript.ShowOntologyTermInfo",
+      "title": "phs Show Term Info"
+    }],
+    "keybindings": [
+      {
+          "command": "phenoscript.ShowOntologyTermInfo",
+          "key": "ctrl+shift+e",
+          "mac": "cmd+shift+e",
+          "when": "editorTextFocus"
+      }
+    ],
     "languages": [{
       "id": "phs",
       "aliases": ["Phenoscript", "phs"],
@@ -75,5 +89,20 @@
   },
   "sponsor": {
       "url": "https://github.com/sergeitarasov"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.83.0",
+    "@types/mocha": "^10.0.2",
+    "@types/node": "18.x",
+    "eslint": "^8.50.0",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0",
+    "typescript": "^5.2.2",
+    "@vscode/test-electron": "^2.3.4"
   }
 }

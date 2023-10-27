@@ -7,3 +7,14 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [Unreleased]
 
 - Initial release
+
+
+
+## [0.0.19] - 2023-10-27
+
+### Added
+
+- Ontology Term info lookup via Webview. Use hotkeys: Win "ctrl+shift+e", Mac "cmd+shift+e".
+- Smart syntax error highlighting. When quality terms are linked using 'has_part' or 'part_of,' the statements are displayed with red highlighting.
+- Integration with [Highlight package](https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-highlight): three types of colorful comments and bounding boxes for color terms. 
+- Snippets updated.

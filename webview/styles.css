@@ -1,0 +1,127 @@
+/* ... (your provided CSS here) ... */
+
+
+body {
+    display: flex;
+    /* justify-content: center; Horizontally center */
+    align-items: center;     /* Vertically center */
+    height: 100vh;           /* Ensure it takes the full viewport height */
+    margin: 0;               /* Remove any default margin */
+    margin-left: 20px;
+}
+
+.property-container > div {
+    margin-top: 5px; /* Adjust this value to move it down as much as you want */
+    margin-bottom: 0px; /* Adjust this value for desired spacing */
+    padding-bottom: 25px; /* Adjust this value for desired padding */
+    padding-top: 0px;
+    border-bottom: 1px solid #3A3F4B; /* This will add the horizontal line */
+    position: relative;
+}
+
+
+
+.property-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    /* color: #9CDCFE; Blueish color similar to VS Code's syntax highlighting */
+    color: #A6E22E;
+}
+
+.property-content {
+    display: flex;
+    flex-direction: column; /* This will stack children vertically */
+    align-items: flex-start; /* This will align children to the start (left) */
+    margin-bottom: 5px;
+}
+
+.property-icon {
+    width: 16px;
+    height: 16px;
+    background-color: #4E5666;
+    /* border-radius: 50%; */
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.property-description {
+    flex: 1;
+    white-space: normal; /* Allow text to wrap */
+    overflow-wrap: break-word; /* Break long words if necessary */
+    flex-shrink: 1; /* Allow the item to shrink */
+    min-width: 0; /* Override default min-width */
+}
+
+.property-description-red {
+    flex: 1;
+    white-space: normal; /* Allow text to wrap */
+    overflow-wrap: break-word; /* Break long words if necessary */
+    flex-shrink: 1; /* Allow the item to shrink */
+    min-width: 0; /* Override default min-width */
+    color: #f0117d;
+}
+
+.description-text {
+    margin-top: 10px; /* Add some spacing between the title and the description */
+}
+
+.icon-and-label {
+    margin-top: 10px;
+    display: flex;
+    align-items: center; /* This will vertically center the icon and the text */
+}
+
+.label-text {
+    margin-left: 3px; /* This will give some space between the icon and the text */
+}
+
+
+
+.boxed-text {
+    display: inline-block;
+    padding: 5px 10px; /* Adjust as needed */
+    border-radius: 10px; /* Rounded corners */
+    color: white; /* Text color */
+    font-weight: bold; /* Bold text */
+}
+
+/* Specific colors based on text content */
+.boxed-text[data-type="Class"] {
+    background-color: #CFA500;
+}
+
+.boxed-text[data-type="Object Property"] {
+    background-color: #0079BA;
+}
+
+.boxed-text[data-type="Data Property"] {
+    background-color: #38A14A;
+}
+
+.boxed-text[data-type="Annotation Property"] {
+    background-color: #D17A00;
+}
+
+
+
+
+
+.property-icon[data-type="Class"] {
+    background-color: #CFA500;
+    border-radius: 50%;
+}
+
+.property-icon[data-type="Object Property"] {
+    background-color: #0079BA;
+    border-radius: 0%;
+}
+
+.property-icon[data-type="Data Property"] {
+    background-color: #38A14A;
+    border-radius: 0%;
+}
+
+.property-icon[data-type="Annotation Property"] {
+    background-color: #D17A00;
+    border-radius: 0%;
+}	
