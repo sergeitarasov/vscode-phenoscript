@@ -35,6 +35,14 @@ This extension contributes the following settings:
 * `phs.enable`: Enable/disable this extension.
 * `phs.thing`: Set to `blah` to do something. -->
 
+## Recommended Packages
+
+To enhance your experience with PhenoScript, we recommend installing and using the following packages. For more information, please visit the [Wiki](https://github.com/sergeitarasov/PhenoScript/wiki/Configure-Phenoscript-VS-Code).
+
+- [Highlight IceMode Extension](https://marketplace.visualstudio.com/items?itemName=iceliu.highlight-icemode)
+- [Highlight Package](https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-highlight)
+
+
 ## Known Issues
 
 n/a
