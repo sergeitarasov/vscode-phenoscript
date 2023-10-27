@@ -18,3 +18,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Smart syntax error highlighting. When quality terms are linked using 'has_part' or 'part_of,' the statements are displayed with red highlighting.
 - Integration with [Highlight package](https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-highlight): three types of colorful comments and bounding boxes for color terms. 
 - Snippets updated.
+
+
+## [0.0.20] - 2023-10-27
+
+### Added
+
+- README update

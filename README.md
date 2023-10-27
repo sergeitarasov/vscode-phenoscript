@@ -73,7 +73,9 @@ Syntax highlight, dark theme, snippets.
 - Smart syntax error highlighting. When quality terms are linked using 'has_part' or 'part_of,' the statements are displayed with red highlighting.
 - Integration with [Highlight package](https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-highlight): three types of colorful comments and bounding boxes for color terms. 
 
+### 0.0.20
 
+- README update
 
 <!-- ### 1.0.1
 
