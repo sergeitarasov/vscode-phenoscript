@@ -25,6 +25,19 @@ This project is supported by the [Academy of Finland](https://www.aka.fi/en/) gr
 ## Installing
 
 Install [VS Code](https://code.visualstudio.com) and launch it. Install the Phenoscript extension from the Visual Studio Code Marketplace by clicking on "Extensions" on the left hand side bar.
+
+## Usage
+
+To activate the ontology term info lookup feature, follow these steps:
+
+- Place your cursor on the focal term.
+- Use the following hotkeys based on your platform:
+    - Windows: "Ctrl+Shift+E"
+    - macOS: "Cmd+Shift+E"
+
+This will provide you with information about the ontology term you have selected.
+
+
 <!-- ## Extension Settings
 Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
 
