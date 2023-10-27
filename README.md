@@ -45,6 +45,15 @@ This is the first release that is currently in the testing phase.
 ### 0.0.11
 Syntax highlight, dark theme, snippets.
 
+
+### 0.0.19
+
+- Ontology Term info Lookup via Webview.
+- Smart syntax error highlighting. When quality terms are linked using 'has_part' or 'part_of,' the statements are displayed with red highlighting.
+- Integration with [Highlight package](https://marketplace.visualstudio.com/items?itemName=fabiospampinato.vscode-highlight): three types of colored comments and bounding boxes for color terms. 
+
+
+
 <!-- ### 1.0.1
 
 Fixed issue #.
