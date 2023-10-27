@@ -8,6 +8,22 @@
       "name": "support.class.phs"
     },
     {
+      "captures": {
+        "1": {
+          "name": "error.class.phs"
+        }
+      },
+      "match": "( > pato-[[:alpha:].][[:alnum:]_-]*)"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "error.class.phs"
+        }
+      },
+      "match": "( pato-[[:alpha:].][[:alnum:]_-]* >)"
+    },    
+    {
       "match": "\\b(library|require)\\b",
       "name": "keyword.control.import.phs"
     },

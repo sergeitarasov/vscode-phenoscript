@@ -107,7 +107,8 @@
       "name": "phs exclamation",
       "scope": "keyword.operator.exclamation.phs",
       "settings": {
-        "foreground": "#db428f"
+        "foreground": "#db428f",
+        "fontStyle":  "bold"
       }
     },
     {
@@ -418,6 +419,15 @@
       ],
       "settings": {
         "foreground": "#E5C07B"
+      }
+    },
+    {
+      "name": "Error Class",
+      "scope": [
+        "error.class"
+      ],
+      "settings": {
+        "foreground": "#FF0000"
       }
     },
     {
