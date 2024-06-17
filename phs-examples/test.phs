@@ -1,8 +1,8 @@
 # New types of comments
-#// FIXIT: kdscsferfqef
-#// RES: sdmskdmskm
+#// FIXIT: one comment
+#// RES: resolved issue comment
 #// OTUName:  Addd OTU/SPECIES NAME HERE 
-#/ Head 
+#/ some other commment
 
 
 
@@ -20,8 +20,16 @@ OTU = { #// OTUName:  Addd OTU/SPECIES NAME HERE
   TRAITS = {
     # Incorrect term linking
     aism-gena > pato-sharp;
+    this > aism-gena > pato-sharp;
+    pato-sharp < aism-mid_leg;
+    pato-sharp >> aism-mid_leg;
+    this >> pato-sharp >> aism-mid_leg;
+    pato-sharp < aism-mid_leg;
+    this > aism-pronotum:id-1754fa >> pato-width |>| pato-length < aism-pronotum:id-1754fa;
+
     # Correct
     aism-gena >> pato-sharp;
+    pato-sharp << aism-mid_leg;
 
     #Body
     #Oval shaped, quite flattened, surface brown to reddish brown, darker ventrally, antennae paler.

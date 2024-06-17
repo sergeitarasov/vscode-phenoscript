@@ -77,6 +77,10 @@ Syntax highlight, dark theme, snippets.
 
 - README update
 
+### 0.0.21/0.0.22
+
+- Improved highlight of erroneous syntax
+
 <!-- ### 1.0.1
 
 Fixed issue #.

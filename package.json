@@ -2,7 +2,7 @@
   "name": "phenoscript",
   "displayName": "Phenoscript",
   "description": "Syntax highlight for the Phenoscript language",
-  "version": "0.0.20",
+  "version": "0.0.22",
   "publisher": "tarasov-lab",
   "license": "MIT",
   "engines": {
