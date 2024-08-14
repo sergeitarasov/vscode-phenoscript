@@ -1,0 +1,22 @@
+"(C) aism-0000003-test": {
+"prefix": ["aism-esclerito-prefix"], !!!# this is show on the snippet
+"body": ["aism-esclerito-body"], !!!# this is inserted when the term selected
+"description": "(C): The region of the insect cuticle that is less flexible than the neighboring conjunctiva(e) (conjunctiva(e) that the sclerite is continuous with.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000003",
+"label_4_translation": ["aism-esclerito"],
+"label_original": "esclerito",
+"type": "C"
+},
+
+
+[my term](http://purl.obolibrary.org/obo/AISM_0000003)
+
+"(C) aism-0000003-test": {
+"prefix": ["aism-esclerito-prefix"], !!!# this is show on the snippet
+"body": ["[sclerite](http://purl.obolibrary.org/obo/AISM_0000003)"], !!!  BODY SHOULD BE: [label_original](iri)
+"description": "(C): The region of the insect cuticle that is less flexible than the neighboring conjunctiva(e) (conjunctiva(e) that the sclerite is continuous with.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000003",
+"label_4_translation": ["aism-esclerito"],
+"label_original": "esclerito",
+"type": "C"
+},

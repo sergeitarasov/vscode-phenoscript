@@ -81,6 +81,10 @@ Syntax highlight, dark theme, snippets.
 
 - Improved highlight of erroneous syntax
 
+### 0.0.23
+
+- Snippets are added for markdown to insert ontology terms. Click ctrl+space if the snippets do not appear automatically.
+
 <!-- ### 1.0.1
 
 Fixed issue #.

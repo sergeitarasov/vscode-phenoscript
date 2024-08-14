@@ -1,0 +1,17 @@
+{
+    "Markdown Example Mine": {
+      "prefix": "mdExample",
+      "body": [
+        "This is an example snippet for Markdown."
+      ],
+      "description": "Inserts an example snippet for Markdown."
+    },
+    "(C) aism-0000003-test": {
+    "prefix": ["aism-esclerito-pref"],
+    "body": ["[sclerite](http://purl.obolibrary.org/obo/AISM_0000003)"],
+    "description": "(C): The region of the insect cuticle that is less flexible than the neighboring conjunctiva(e) (conjunctiva(e) that the sclerite is continuous with.",
+    "iri": "http://purl.obolibrary.org/obo/AISM_0000003",
+    "label_4_translation": ["aism-esclerito"],
+    "label_original": "esclerito",
+    "type": "C"
+}

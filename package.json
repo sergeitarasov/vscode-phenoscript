@@ -2,7 +2,7 @@
   "name": "phenoscript",
   "displayName": "Phenoscript",
   "description": "Syntax highlight for the Phenoscript language",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "publisher": "tarasov-lab",
   "license": "MIT",
   "engines": {
@@ -39,11 +39,16 @@
       "aliases": ["Phenoscript", "phs"],
       "extensions": [".phs"],
       "configuration": "./language-configuration.json"
-    }],
+    }
+    ],
     "snippets": [
       {
         "language": "phs",
         "path": "./snippets/phs-snippets.json"
+      },
+      {
+        "language": "markdown",
+        "path": "./snippets/markdown-snippets.json"
       }
     ],
     "grammars": [{
