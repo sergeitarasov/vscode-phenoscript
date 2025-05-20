@@ -1,6 +1,7 @@
 const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
+const { runPythonVersion } = require("./commands/pythonCommands");
 
 let wordPanel = null;
 const snippetsPath = path.join(__dirname, "snippets", "phs-snippets.json");
@@ -125,9 +126,169 @@ function activate(context) {
 	);
 
 	context.subscriptions.push(disposable);
+
+	// Register WebView Provider
+	const provider = new PHSSidebarViewProvider(context.extensionUri, context);
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider("phsSidebar", provider)
+	);
 }
 
-function deactivate() { }
+class PHSSidebarViewProvider {
+	constructor(extensionUri, context) {
+		this._extensionUri = extensionUri;
+		this._context = context;
+		// Store terminal references
+		this._pythonTerminal = undefined;
+		this._bashTerminal = undefined;
+
+		// Clean up terminal references when they're closed
+		context.subscriptions.push(
+			vscode.window.onDidCloseTerminal((terminal) => {
+				if (terminal === this._pythonTerminal) {
+					this._pythonTerminal = undefined;
+				}
+				if (terminal === this._bashTerminal) {
+					this._bashTerminal = undefined;
+				}
+			})
+		);
+	}
+
+	resolveWebviewView(webviewView, context, _token) {
+		webviewView.webview.options = {
+			enableScripts: true,
+		};
+
+		const sidebarPath = path.join(
+			this._extensionUri.fsPath,
+			"webview",
+			"sidebar.html"
+		);
+		webviewView.webview.html = fs.readFileSync(sidebarPath, "utf8");
+
+		webviewView.webview.onDidReceiveMessage(async (message) => {
+			switch (message.command) {
+				case "runPython":
+					try {
+						// Reuse existing Python terminal or create new one
+						if (
+							!this._pythonTerminal ||
+							this._pythonTerminal.exitStatus !== undefined
+						) {
+							this._pythonTerminal =
+								vscode.window.terminals.find(
+									(t) => t.name === "Python Version"
+								) ||
+								vscode.window.createTerminal("Python Version");
+						}
+						this._pythonTerminal.show();
+						this._pythonTerminal.sendText("python --version");
+						vscode.window.showInformationMessage(
+							"Python version check completed"
+						);
+					} catch (error) {
+						vscode.window.showErrorMessage("Failed to check Python version");
+					}
+					break;
+
+				case "runBash":
+					try {
+						// Reuse existing Bash terminal or create new one
+						if (
+							!this._bashTerminal ||
+							this._bashTerminal.exitStatus !== undefined
+						) {
+							this._bashTerminal =
+								vscode.window.terminals.find(
+									(t) => t.name === "Bash Command"
+								) ||
+								vscode.window.createTerminal("Bash Command");
+						}
+						this._bashTerminal.show();
+						this._bashTerminal.sendText(message.bashCommand);
+					} catch (error) {
+						vscode.window.showErrorMessage("Failed to execute bash command");
+					}
+					break;
+
+				case "createProject":
+					try {
+						// Show folder picker
+						const folder = await vscode.window.showOpenDialog({
+							canSelectFiles: false,
+							canSelectFolders: true,
+							canSelectMany: false,
+							title: "Select Parent Folder for New PhenoScript Project",
+						});
+
+						if (folder && folder[0]) {
+							// Create project name input
+							const projectName = await vscode.window.showInputBox({
+								prompt: "Enter project name",
+								placeHolder: "my_phenoscript_project",
+							});
+
+							if (projectName) {
+								const targetDir = path.join(folder[0].fsPath, projectName);
+								const sourceDir = path.join(
+									this._extensionUri.fsPath,
+									"dir-create",
+									"main"
+								);
+
+								// Create target directory
+								await fs.promises.mkdir(targetDir, { recursive: true });
+
+								// Copy directory recursively
+								await this.copyDirectory(sourceDir, targetDir);
+
+								// Add folder to workspace
+								const uri = vscode.Uri.file(targetDir);
+								vscode.workspace.updateWorkspaceFolders(
+									vscode.workspace.workspaceFolders
+										? vscode.workspace.workspaceFolders.length
+										: 0,
+									null,
+									{ uri }
+								);
+
+								vscode.window.showInformationMessage(
+									`Project created at ${targetDir}`
+								);
+							}
+						}
+					} catch (error) {
+						vscode.window.showErrorMessage(
+							`Failed to create project: ${error.message}`
+						);
+						console.error(error);
+					}
+					break;
+			}
+		});
+	}
+
+	// Add this helper method to copy directories recursively
+	async copyDirectory(src, dest) {
+		const entries = await fs.promises.readdir(src, { withFileTypes: true });
+
+		await fs.promises.mkdir(dest, { recursive: true });
+
+		for (const entry of entries) {
+			const srcPath = path.join(src, entry.name);
+			const destPath = path.join(dest, entry.name);
+
+			if (entry.isDirectory()) {
+				await this.copyDirectory(srcPath, destPath);
+			} else {
+				await fs.promises.copyFile(srcPath, destPath);
+			}
+		}
+	}
+}
+
+function deactivate() {}
 
 module.exports = {
 	activate,

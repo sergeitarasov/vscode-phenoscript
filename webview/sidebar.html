@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { padding: 10px; }
+        button {
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px;
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: var(--vscode-button-hoverBackground);
+        }
+    </style>
+</head>
+<body>
+    <button id="checkPython">Check Python Version</button>
+    <button id="runBash">Run Bash Command</button>
+    <button id="createProject">Create New PhenoScript Project</button>
+    <script>
+        const vscode = acquireVsCodeApi();
+        
+        document.getElementById('checkPython').addEventListener('click', () => {
+            vscode.postMessage({ command: 'runPython' });
+        });
+        
+        document.getElementById('runBash').addEventListener('click', () => {
+            vscode.postMessage({ 
+                command: 'runBash',
+                bashCommand: 'echo Hello from Bash'
+            });
+        });
+        
+        document.getElementById('createProject').addEventListener('click', () => {
+            vscode.postMessage({ 
+                command: 'createProject'
+            });
+        });
+    </script>
+</body>
+</html>

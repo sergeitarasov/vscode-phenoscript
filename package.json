@@ -2,7 +2,7 @@
   "name": "phenoscript",
   "displayName": "Phenoscript",
   "description": "Syntax highlight for the Phenoscript language",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "publisher": "tarasov-lab",
   "license": "MIT",
   "engines": {
@@ -22,6 +22,25 @@
   "activationEvents": [],
   "main": "./extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "phs-sidebar",
+          "title": "Phenoscript",
+          "icon": "resources/sidebar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "phs-sidebar": [
+        {
+          "icon": "resources/sidebar-icon.svg",
+          "id": "phsSidebar",
+          "name": "Phenoscript",
+          "type": "webview"
+        }
+      ]
+    },
     "commands": [{
       "command": "phenoscript.ShowOntologyTermInfo",
       "title": "phs Show Term Info"
