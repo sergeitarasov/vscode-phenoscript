@@ -20,7 +20,7 @@
 <body>
     <button id="checkPython">Check Python Version</button>
     <button id="runBash">Run Bash Command</button>
-    <button id="createProject">Create New PhenoScript Project</button>
+    <button id="convertPhs">Convert to RDF & HTML</button>
     <script>
         const vscode = acquireVsCodeApi();
         
@@ -35,9 +35,9 @@
             });
         });
         
-        document.getElementById('createProject').addEventListener('click', () => {
+        document.getElementById('convertPhs').addEventListener('click', () => {
             vscode.postMessage({ 
-                command: 'createProject'
+                command: 'convertPhs'
             });
         });
     </script>

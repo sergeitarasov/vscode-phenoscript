@@ -141,7 +141,8 @@ class PHSSidebarViewProvider {
 		// Store terminal references
 		this._pythonTerminal = undefined;
 		this._bashTerminal = undefined;
-
+		this._phenoscriptTerminal = undefined;  // Add new terminal reference
+		
 		// Clean up terminal references when they're closed
 		context.subscriptions.push(
 			vscode.window.onDidCloseTerminal((terminal) => {
@@ -150,6 +151,9 @@ class PHSSidebarViewProvider {
 				}
 				if (terminal === this._bashTerminal) {
 					this._bashTerminal = undefined;
+				}
+				if (terminal === this._phenoscriptTerminal) {
+					this._phenoscriptTerminal = undefined;
 				}
 			})
 		);
@@ -262,6 +266,70 @@ class PHSSidebarViewProvider {
 						vscode.window.showErrorMessage(
 							`Failed to create project: ${error.message}`
 						);
+						console.error(error);
+					}
+					break;
+
+				case "convertPhs":
+					try {
+						// Get active editor
+						const editor = vscode.window.activeTextEditor;
+						if (!editor) {
+							vscode.window.showErrorMessage('No active PHS file');
+							return;
+						}
+
+						// Check if it's a .phs file
+						if (!editor.document.fileName.endsWith('.phs')) {
+							vscode.window.showErrorMessage('Active file is not a PHS file');
+							return;
+						}
+
+						// Get file paths
+						const filePath = editor.document.fileName;
+						const fileName = path.basename(filePath);
+						const workspaceFolder = path.dirname(path.dirname(filePath)); // parent of phenotypes dir
+
+						// Create output directory structure
+						const outputBaseDir = path.join(workspaceFolder, 'output');
+						const outputRdfPath = path.join(outputBaseDir, 'output_rdf');
+						const outputHtmlPath = path.join(outputBaseDir, 'output_html');
+						
+						// Create directories if they don't exist
+						if (!fs.existsSync(outputBaseDir)) {
+							fs.mkdirSync(outputBaseDir, { recursive: true });
+						}
+						if (!fs.existsSync(outputRdfPath)) {
+							fs.mkdirSync(outputRdfPath, { recursive: true });
+						}
+						if (!fs.existsSync(outputHtmlPath)) {
+							fs.mkdirSync(outputHtmlPath, { recursive: true });
+						}
+
+						// Reuse existing terminal or create new one
+						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
+							this._phenoscriptTerminal = vscode.window.terminals.find(
+								(t) => t.name === 'PhenoScript Converter'
+							) || vscode.window.createTerminal('PhenoScript Converter');
+						}
+
+						// Show and clear terminal
+						this._phenoscriptTerminal.show();
+						this._phenoscriptTerminal.sendText('clear');
+
+						// Run docker command with updated paths
+						const dockerCommand = `docker run \\
+    -v "${workspaceFolder}/phenotypes:/app/phenotypes" \\
+    -v "${outputRdfPath}:/app/output_rdf" \\
+    -v "${outputHtmlPath}:/app/output_html" \\
+    -e PHS_FILE=${fileName} \\
+    phenospy-converter`;
+
+        this._phenoscriptTerminal.sendText(dockerCommand);
+        
+        vscode.window.showInformationMessage('Converting PHS file...');
+					} catch (error) {
+						vscode.window.showErrorMessage(`Failed to convert PHS file: ${error.message}`);
 						console.error(error);
 					}
 					break;
