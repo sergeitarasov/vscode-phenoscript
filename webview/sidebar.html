@@ -15,30 +15,104 @@
         button:hover {
             background: var(--vscode-button-hoverBackground);
         }
+        .nl-format-box {
+            margin: 6px 0 2px 0;
+            padding: 7px 10px;
+            border: 1px solid var(--vscode-panel-border, #444);
+            border-radius: 3px;
+            font-size: 12px;
+            color: var(--vscode-foreground);
+        }
+        .nl-format-box .nl-label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 11px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .nl-format-box label {
+            display: block;
+            margin: 3px 0;
+            cursor: pointer;
+        }
+        .nl-format-box input[type="radio"] {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+        .nl-format-box input[type="checkbox"] {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+        .nl-format-box .nl-divider {
+            border: none;
+            border-top: 1px solid var(--vscode-panel-border, #444);
+            margin: 6px 0;
+        }
     </style>
 </head>
 <body>
-    <button id="checkPython">Check Python Version</button>
-    <button id="runBash">Run Bash Command</button>
-    <button id="convertPhs">Convert to RDF & HTML</button>
+    <button id="createProject">Create Project</button>
+    <button id="getOntologies">Get / Update Ontologies</button>
+    <button id="convertPhs">Convert to OWL + Text</button>
+    <button id="materialize">Materialize (ABox &#8594; KB)</button>
+    <button id="submit">Prepare for Submission</button>
+
+    <div class="nl-format-box">
+        <div class="nl-label">Natural language format</div>
+        <label><input type="radio" name="nlFormat" value="html" checked> HTML</label>
+        <label><input type="radio" name="nlFormat" value="md"> Markdown</label>
+        <label><input type="radio" name="nlFormat" value="both"> Both</label>
+        <hr class="nl-divider">
+        <label><input type="checkbox" id="gbifFlag" checked> Add GBIF taxonomy</label>
+    </div>
+
     <script>
         const vscode = acquireVsCodeApi();
-        
-        document.getElementById('checkPython').addEventListener('click', () => {
-            vscode.postMessage({ command: 'runPython' });
-        });
-        
-        document.getElementById('runBash').addEventListener('click', () => {
-            vscode.postMessage({ 
-                command: 'runBash',
-                bashCommand: 'echo Hello from Bash'
+
+        // Restore last chosen format and GBIF option from persisted webview state
+        const state = vscode.getState();
+        if (state && state.nlFormat) {
+            const saved = document.querySelector(`input[name="nlFormat"][value="${state.nlFormat}"]`);
+            if (saved) saved.checked = true;
+        }
+        if (state && state.gbif !== undefined) {
+            document.getElementById('gbifFlag').checked = state.gbif;
+        }
+
+        function saveState() {
+            vscode.setState({
+                nlFormat: document.querySelector('input[name="nlFormat"]:checked').value,
+                gbif: document.getElementById('gbifFlag').checked,
             });
+        }
+
+        // Persist selection whenever it changes
+        document.querySelectorAll('input[name="nlFormat"]').forEach(radio => {
+            radio.addEventListener('change', saveState);
         });
-        
+        document.getElementById('gbifFlag').addEventListener('change', saveState);
+
+        document.getElementById('createProject').addEventListener('click', () => {
+            vscode.postMessage({ command: 'createProject' });
+        });
+
+        document.getElementById('getOntologies').addEventListener('click', () => {
+            vscode.postMessage({ command: 'getOntologies' });
+        });
+
+        document.getElementById('materialize').addEventListener('click', () => {
+            vscode.postMessage({ command: 'materialize' });
+        });
+
+        document.getElementById('submit').addEventListener('click', () => {
+            vscode.postMessage({ command: 'submit' });
+        });
+
         document.getElementById('convertPhs').addEventListener('click', () => {
-            vscode.postMessage({ 
-                command: 'convertPhs'
-            });
+            const nlFormat = document.querySelector('input[name="nlFormat"]:checked').value;
+            const gbif = document.getElementById('gbifFlag').checked;
+            vscode.postMessage({ command: 'convertPhs', nlFormat, gbif });
         });
     </script>
 </body>

@@ -1,7 +1,7 @@
 const vscode = require("vscode");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
-const { runPythonVersion } = require("./commands/pythonCommands");
 
 let wordPanel = null;
 const snippetsPath = path.join(__dirname, "snippets", "phs-snippets.json");
@@ -12,6 +12,28 @@ const snippets = JSON.parse(fs.readFileSync(snippetsPath, "utf-8"));
  */
 function activate(context) {
 	// console.log('Congratulations, your extension "phenoscript" is now active!');
+
+	// After adding the very first workspace folder VS Code reloads the window.
+	// We persist the config path in globalState before the reload so we can
+	// open it and show the setup prompt once the extension re-activates.
+	const pendingConfig = context.globalState.get('pendingConfigOpen');
+	if (pendingConfig) {
+		context.globalState.update('pendingConfigOpen', undefined);
+		setTimeout(async () => {
+			try {
+				await vscode.commands.executeCommand('workbench.view.explorer');
+				const configUri = vscode.Uri.file(pendingConfig.configPath);
+				await vscode.window.showTextDocument(configUri);
+				await vscode.window.showInformationMessage(
+					`Project '${pendingConfig.projectName}' created!\n\nPlease fill in your name, ORCID ID, and project title in phs-config.yaml.`,
+					{ modal: true },
+					'OK'
+				);
+			} catch (e) {
+				console.error('PhenoScript: post-reload setup failed', e);
+			}
+		}, 1500);
+	}
 
 	let disposable = vscode.commands.registerCommand(
 		"phenoscript.ShowOntologyTermInfo",
@@ -138,20 +160,11 @@ class PHSSidebarViewProvider {
 	constructor(extensionUri, context) {
 		this._extensionUri = extensionUri;
 		this._context = context;
-		// Store terminal references
-		this._pythonTerminal = undefined;
-		this._bashTerminal = undefined;
-		this._phenoscriptTerminal = undefined;  // Add new terminal reference
-		
-		// Clean up terminal references when they're closed
+		this._phenoscriptTerminal = undefined;
+
+		// Clean up terminal reference when it's closed
 		context.subscriptions.push(
 			vscode.window.onDidCloseTerminal((terminal) => {
-				if (terminal === this._pythonTerminal) {
-					this._pythonTerminal = undefined;
-				}
-				if (terminal === this._bashTerminal) {
-					this._bashTerminal = undefined;
-				}
 				if (terminal === this._phenoscriptTerminal) {
 					this._phenoscriptTerminal = undefined;
 				}
@@ -173,49 +186,6 @@ class PHSSidebarViewProvider {
 
 		webviewView.webview.onDidReceiveMessage(async (message) => {
 			switch (message.command) {
-				case "runPython":
-					try {
-						// Reuse existing Python terminal or create new one
-						if (
-							!this._pythonTerminal ||
-							this._pythonTerminal.exitStatus !== undefined
-						) {
-							this._pythonTerminal =
-								vscode.window.terminals.find(
-									(t) => t.name === "Python Version"
-								) ||
-								vscode.window.createTerminal("Python Version");
-						}
-						this._pythonTerminal.show();
-						this._pythonTerminal.sendText("python --version");
-						vscode.window.showInformationMessage(
-							"Python version check completed"
-						);
-					} catch (error) {
-						vscode.window.showErrorMessage("Failed to check Python version");
-					}
-					break;
-
-				case "runBash":
-					try {
-						// Reuse existing Bash terminal or create new one
-						if (
-							!this._bashTerminal ||
-							this._bashTerminal.exitStatus !== undefined
-						) {
-							this._bashTerminal =
-								vscode.window.terminals.find(
-									(t) => t.name === "Bash Command"
-								) ||
-								vscode.window.createTerminal("Bash Command");
-						}
-						this._bashTerminal.show();
-						this._bashTerminal.sendText(message.bashCommand);
-					} catch (error) {
-						vscode.window.showErrorMessage("Failed to execute bash command");
-					}
-					break;
-
 				case "createProject":
 					try {
 						// Show folder picker
@@ -223,31 +193,58 @@ class PHSSidebarViewProvider {
 							canSelectFiles: false,
 							canSelectFolders: true,
 							canSelectMany: false,
-							title: "Select Parent Folder for New PhenoScript Project",
+							title: "Select a directory for your new PhenoScript project",
+							openLabel: "Select Directory",
 						});
 
 						if (folder && folder[0]) {
-							// Create project name input
+							// Ask for project name — user can choose any name
 							const projectName = await vscode.window.showInputBox({
-								prompt: "Enter project name",
+								prompt: "Enter a name for your new PhenoScript project",
 								placeHolder: "my_phenoscript_project",
+								validateInput: (val) => val.trim() ? null : "Project name cannot be empty",
 							});
 
 							if (projectName) {
-								const targetDir = path.join(folder[0].fsPath, projectName);
-								const sourceDir = path.join(
+								const targetDir = path.join(folder[0].fsPath, projectName.trim());
+								const templateDir = path.join(
 									this._extensionUri.fsPath,
 									"dir-create",
 									"main"
 								);
 
-								// Create target directory
-								await fs.promises.mkdir(targetDir, { recursive: true });
+								// Create project structure
+								const phenotypesDir = path.join(targetDir, "phenotypes");
+								const sourceOntologiesDir = path.join(targetDir, "source_ontologies");
+								const owlRawDir = path.join(targetDir, "output", "owl_init");
+								const utilsDir = path.join(targetDir, "utils");
+								await fs.promises.mkdir(phenotypesDir, { recursive: true });
+								await fs.promises.mkdir(sourceOntologiesDir, { recursive: true });
+								await fs.promises.mkdir(owlRawDir, { recursive: true });
+								await fs.promises.mkdir(utilsDir, { recursive: true });
+								await fs.promises.mkdir(path.join(targetDir, "output", "log-shacl"), { recursive: true });
+								await fs.promises.mkdir(path.join(targetDir, "output", "log-materializer"), { recursive: true });
+								await fs.promises.mkdir(path.join(targetDir, "output", "abox"), { recursive: true });
+								await fs.promises.mkdir(path.join(targetDir, "output", "kb"), { recursive: true });
 
-								// Copy directory recursively
-								await this.copyDirectory(sourceDir, targetDir);
+								// Copy only the required template files into phenotypes/
+								const templateFiles = ["phs-config.yaml", "my_species.yphs"];
+								for (const file of templateFiles) {
+									await fs.promises.copyFile(
+										path.join(templateDir, "phenotypes", file),
+										path.join(phenotypesDir, file)
+									);
+								}
 
-								// Add folder to workspace
+								// Copy utils files (shacl shapes + annotate query)
+								const utilsFiles = ["phenoscript.shacl.ttl", "annotate.ru"];
+								for (const file of utilsFiles) {
+									const src = path.join(templateDir, "utils", file);
+									if (fs.existsSync(src)) {
+										await fs.promises.copyFile(src, path.join(utilsDir, file));
+									}
+								}
+
 								const uri = vscode.Uri.file(targetDir);
 								vscode.workspace.updateWorkspaceFolders(
 									vscode.workspace.workspaceFolders
@@ -257,9 +254,34 @@ class PHSSidebarViewProvider {
 									{ uri }
 								);
 
-								vscode.window.showInformationMessage(
-									`Project created at ${targetDir}`
-								);
+								// If the window was NOT reloaded (folder added to existing workspace),
+								// the globalState flag is still set — handle it inline and clear it.
+								setTimeout(async () => {
+									const pending = this._context.globalState.get('pendingConfigOpen');
+									if (!pending) return;
+									await this._context.globalState.update('pendingConfigOpen', undefined);
+									try {
+										await vscode.commands.executeCommand('workbench.view.explorer');
+										const configUri = vscode.Uri.file(pending.configPath);
+										await vscode.window.showTextDocument(configUri);
+										await vscode.window.showInformationMessage(
+											`Project '${pending.projectName}' created!\n\nPlease fill in your name, ORCID ID, and project title in phs-config.yaml.`,
+											{ modal: true },
+											'OK'
+										);
+									} catch (e) {
+										console.error('PhenoScript: post-create setup failed', e);
+									}
+								}, 800);
+
+								// Persist the config path so the post-reload handler in activate()
+								// can open it after VS Code reloads the window (first folder added).
+								await this._context.globalState.update('pendingConfigOpen', {
+									configPath: path.join(phenotypesDir, 'phs-config.yaml'),
+									projectName: projectName.trim(),
+								});
+
+								// Add folder to workspace (may reload the window if this is the first folder)
 							}
 						}
 					} catch (error) {
@@ -275,61 +297,378 @@ class PHSSidebarViewProvider {
 						// Get active editor
 						const editor = vscode.window.activeTextEditor;
 						if (!editor) {
-							vscode.window.showErrorMessage('No active PHS file');
+							vscode.window.showErrorMessage('No active PhenoScript file. Open a .phs or .yphs file first.');
 							return;
 						}
 
-						// Check if it's a .phs file
-						if (!editor.document.fileName.endsWith('.phs')) {
-							vscode.window.showErrorMessage('Active file is not a PHS file');
+						// Accept both .phs (plain text) and .yphs (YAML-block) formats
+						if (!/\.(phs|yphs)$/.test(editor.document.fileName)) {
+							vscode.window.showErrorMessage('Active file must be a .phs or .yphs PhenoScript file.');
 							return;
 						}
 
-						// Get file paths
 						const filePath = editor.document.fileName;
 						const fileName = path.basename(filePath);
-						const workspaceFolder = path.dirname(path.dirname(filePath)); // parent of phenotypes dir
+						const projectDir = path.dirname(path.dirname(filePath)); // parent of phenotypes/
+						const phenotypesDir = path.join(projectDir, 'phenotypes');
+						const owlRawDir = path.join(projectDir, 'output', 'owl_init');
+						const nlDir = path.join(projectDir, 'output', 'nl');
+							const utilsDir = path.join(projectDir, 'utils');
+							const logShaclDir = path.join(projectDir, 'output', 'log-shacl');
+							const snippetsDir = path.join(this._extensionUri.fsPath, 'snippets');
 
-						// Create output directory structure
-						const outputBaseDir = path.join(workspaceFolder, 'output');
-						const outputRdfPath = path.join(outputBaseDir, 'output_rdf');
-						const outputHtmlPath = path.join(outputBaseDir, 'output_html');
-						
-						// Create directories if they don't exist
-						if (!fs.existsSync(outputBaseDir)) {
-							fs.mkdirSync(outputBaseDir, { recursive: true });
-						}
-						if (!fs.existsSync(outputRdfPath)) {
-							fs.mkdirSync(outputRdfPath, { recursive: true });
-						}
-						if (!fs.existsSync(outputHtmlPath)) {
-							fs.mkdirSync(outputHtmlPath, { recursive: true });
-						}
+							// NL format chosen in the sidebar (html | md | both)
+							const nlFormat = message.nlFormat || 'html';
+							// GBIF taxonomy flag — adds -g to phenospy yphs2owl when true
+							const gbif = message.gbif !== false; // default true
 
-						// Reuse existing terminal or create new one
+							// Ensure output dirs exist (in case user didn't use Create Project)
+							await fs.promises.mkdir(owlRawDir, { recursive: true });
+							await fs.promises.mkdir(nlDir, { recursive: true });
+							await fs.promises.mkdir(logShaclDir, { recursive: true });
+							// utils/ may not exist if project was created without it — skip gracefully
+							await fs.promises.mkdir(utilsDir, { recursive: true });
+						const toDockerPath = (p) => p.split(path.sep).join('/');
+
+						// On Windows with Git Bash, MSYS path conversion mangles container-side
+						// paths like :/app/input into Windows paths — disable it.
+						// PowerShell and CMD don't support inline env-var prefix, so only apply
+						// this when the active shell is bash on Windows.
+						const activeShell = vscode.env.shell || '';
+						const isWinGitBash = process.platform === 'win32' && /bash/i.test(activeShell);
+						const envPrefix = isWinGitBash ? 'MSYS_NO_PATHCONV=1 ' : '';
+
+						// Reuse or create terminal
 						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
 							this._phenoscriptTerminal = vscode.window.terminals.find(
-								(t) => t.name === 'PhenoScript Converter'
-							) || vscode.window.createTerminal('PhenoScript Converter');
+								(t) => t.name === 'PhenoScript'
+							) || vscode.window.createTerminal('PhenoScript');
 						}
-
-						// Show and clear terminal
 						this._phenoscriptTerminal.show();
 						this._phenoscriptTerminal.sendText('clear');
 
-						// Run docker command with updated paths
-						const dockerCommand = `docker run \\
-    -v "${workspaceFolder}/phenotypes:/app/phenotypes" \\
-    -v "${outputRdfPath}:/app/output_rdf" \\
-    -v "${outputHtmlPath}:/app/output_html" \\
-    -e PHS_FILE=${fileName} \\
-    phenospy-converter`;
+						// Volume mounts:
+						//   /app/input     ← project phenotypes/ (contains .yphs + phs-config.yaml)
+						//   /app/snippets  ← extension snippets/ (provides phs-snippets.json)
+						//   /app/output    ← project output/owl_init/ (receives .owl + .xml)
+						//   /app/nl_output ← project output/nl/ (receives .html / .md)
+						//   /app/utils     ← project utils/ (contains shacl shapes)
+						//   /app/log-shacl ← project output/log-shacl/ (receives shacl logs)
+						const dockerCommand =
+							envPrefix +
+							'docker run --rm' +
+							` -v "${toDockerPath(phenotypesDir)}:/app/input"` +
+							` -v "${toDockerPath(snippetsDir)}:/app/snippets"` +
+							` -v "${toDockerPath(owlRawDir)}:/app/output"` +
+							` -v "${toDockerPath(nlDir)}:/app/nl_output"` +
+							` -v "${toDockerPath(utilsDir)}:/app/utils"` +
+							` -v "${toDockerPath(logShaclDir)}:/app/log-shacl"` +
+							` -e PHS_FILE=${fileName}` +
+							` -e NL_FORMAT=${nlFormat}` +
+							` -e GBIF_FLAG=${gbif ? '1' : '0'}` +
+							' sergeit215/phenoscript-docker:latest';
 
-        this._phenoscriptTerminal.sendText(dockerCommand);
-        
-        vscode.window.showInformationMessage('Converting PHS file...');
+						this._phenoscriptTerminal.sendText(dockerCommand);
+						vscode.window.showInformationMessage(`Converting ${fileName} to OWL + natural language (${nlFormat})...`);
 					} catch (error) {
-						vscode.window.showErrorMessage(`Failed to convert PHS file: ${error.message}`);
+						vscode.window.showErrorMessage(`Conversion failed: ${error.message}`);
+						console.error(error);
+					}
+					break;
+
+				case "getOntologies":
+					try {
+						// Resolve project dir from active editor or first matching workspace folder
+						let projectDir = null;
+						const activeEditor = vscode.window.activeTextEditor;
+						if (activeEditor) {
+							const dir = path.dirname(activeEditor.document.fileName);
+							if (fs.existsSync(path.join(dir, 'phs-config.yaml'))) {
+								projectDir = path.dirname(dir); // active file is inside phenotypes/
+							} else if (fs.existsSync(path.join(dir, 'phenotypes', 'phs-config.yaml'))) {
+								projectDir = dir;
+							}
+						}
+						if (!projectDir && vscode.workspace.workspaceFolders) {
+							for (const wf of vscode.workspace.workspaceFolders) {
+								if (fs.existsSync(path.join(wf.uri.fsPath, 'phenotypes', 'phs-config.yaml'))) {
+									projectDir = wf.uri.fsPath;
+									break;
+								}
+							}
+						}
+						if (!projectDir) {
+							vscode.window.showErrorMessage('No PhenoScript project found. Open a project folder first.');
+							return;
+						}
+
+						const phenotypesDir = path.join(projectDir, 'phenotypes');
+						const sourceOntologiesDir = path.join(projectDir, 'source_ontologies');
+
+						// Ensure directories exist
+						await fs.promises.mkdir(sourceOntologiesDir, { recursive: true });
+
+						const toDockerPath = (p) => p.split(path.sep).join('/');
+						const activeShell = vscode.env.shell || '';
+						const isWinGitBash = process.platform === 'win32' && /bash/i.test(activeShell);
+						const envPrefix = isWinGitBash ? 'MSYS_NO_PATHCONV=1 ' : '';
+
+						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
+							this._phenoscriptTerminal = vscode.window.terminals.find(
+								(t) => t.name === 'PhenoScript'
+							) || vscode.window.createTerminal('PhenoScript');
+						}
+						this._phenoscriptTerminal.show();
+						this._phenoscriptTerminal.sendText('clear');
+
+						// Commands run inside the container:
+						//   1. phenospy fetch-ontos  — downloads ontologies listed in phs-config.yaml
+						//   2. robot merge           — merges all .owl files + query.ttl into tbox.owl
+						//   3. robot remove          — strips individuals from tbox.owl
+						const shellCmd = [
+							'phenospy fetch-ontos /app/input/phs-config.yaml /app/source_ontologies',
+							'echo "=== All ontologies downloaded ==="',
+							'echo "=== robot: merging ontologies into tbox.owl... ==="',
+							'robot merge --inputs "/app/source_ontologies/*.owl" --output /app/source_ontologies/tbox.owl',
+							'echo "=== robot: removing individuals from tbox.owl... ==="',
+							'robot remove --input /app/source_ontologies/tbox.owl --select individuals --output /app/source_ontologies/tbox.owl',
+							'echo "=== Done: tbox.owl is ready ==="',
+						].join(' && ');
+
+						const ontoDockerCommand =
+							envPrefix +
+							'docker run --rm' +
+							` -v "${toDockerPath(phenotypesDir)}:/app/input"` +
+							` -v "${toDockerPath(sourceOntologiesDir)}:/app/source_ontologies"` +
+							' --entrypoint /bin/sh' +
+							' sergeit215/phenoscript-docker:latest' +
+							` -c '${shellCmd}'`;
+
+						this._phenoscriptTerminal.sendText(ontoDockerCommand);
+						vscode.window.showInformationMessage('Fetching and merging ontologies...');
+					} catch (error) {
+						vscode.window.showErrorMessage(`Failed to get ontologies: ${error.message}`);
+						console.error(error);
+					}
+					break;
+
+				case "materialize":
+					try {
+						// Resolve project dir from active editor or workspace folders
+						let projectDir = null;
+						const activeEditor = vscode.window.activeTextEditor;
+						if (activeEditor) {
+							const dir = path.dirname(activeEditor.document.fileName);
+							if (fs.existsSync(path.join(dir, 'phs-config.yaml'))) {
+								projectDir = path.dirname(dir);
+							} else if (fs.existsSync(path.join(dir, 'phenotypes', 'phs-config.yaml'))) {
+								projectDir = dir;
+							}
+						}
+						if (!projectDir && vscode.workspace.workspaceFolders) {
+							for (const wf of vscode.workspace.workspaceFolders) {
+								if (fs.existsSync(path.join(wf.uri.fsPath, 'phenotypes', 'phs-config.yaml'))) {
+									projectDir = wf.uri.fsPath;
+									break;
+								}
+							}
+						}
+						if (!projectDir) {
+							vscode.window.showErrorMessage('No PhenoScript project found. Open a project folder first.');
+							return;
+						}
+
+						const projectName = path.basename(projectDir);
+						const owlInitDir       = path.join(projectDir, 'output', 'owl_init');
+						const sourceOntologiesDir = path.join(projectDir, 'source_ontologies');
+						const aboxDir          = path.join(projectDir, 'output', 'abox');
+						const utilsDir         = path.join(projectDir, 'utils');
+						const logMaterializerDir = path.join(projectDir, 'output', 'log-materializer');
+						const kbDir            = path.join(projectDir, 'output', 'kb');
+
+						// Ensure output dirs exist
+						await fs.promises.mkdir(aboxDir, { recursive: true });
+						await fs.promises.mkdir(logMaterializerDir, { recursive: true });
+						await fs.promises.mkdir(kbDir, { recursive: true });
+
+						const toDockerPath = (p) => p.split(path.sep).join('/');
+						const activeShell = vscode.env.shell || '';
+						const isWinGitBash = process.platform === 'win32' && /bash/i.test(activeShell);
+						const envPrefix = isWinGitBash ? 'MSYS_NO_PATHCONV=1 ' : '';
+
+						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
+							this._phenoscriptTerminal = vscode.window.terminals.find(
+								(t) => t.name === 'PhenoScript'
+							) || vscode.window.createTerminal('PhenoScript');
+						}
+						this._phenoscriptTerminal.show();
+						this._phenoscriptTerminal.sendText('clear');
+
+						// Write pipeline to a temp script to avoid terminal paste-length limits
+						const scriptLines = [
+							'#!/bin/sh',
+							'set -e',
+							'echo "=== robot: merging OWL files into abox-merged.owl... ==="',
+							'robot merge --inputs "/app/owl_init/*.owl" --output /app/abox/abox-merged.owl',
+							'echo "=== materializer: inferring axioms (whelk reasoner)... ==="',
+							'materializer file --ontology-file /app/source_ontologies/tbox.owl --input /app/abox/abox-merged.owl --output /app/abox/abox-whelk-raw.ttl --reasoner whelk > /app/log-materializer/materializer.log 2>&1',
+							'echo "=== robot: annotating inferred axioms... ==="',
+							'update --update /app/utils/annotate.ru --data /app/abox/abox-whelk-raw.ttl --dump > /app/abox/abox-whelk-annotated.ttl',
+							'echo "=== riot: building knowledge base... ==="',
+							`riot /app/abox/abox-merged.owl /app/abox/abox-whelk-annotated.ttl /app/source_ontologies/tbox.owl > /app/kb/${projectName}-kb.ttl`,
+							`echo "=== Done: output/kb/${projectName}-kb.ttl is ready ==="`,
+							'if grep -q "Inconsistent dataset" /app/log-materializer/materializer.log; then echo "=== WARNING: Inconsistent dataset detected! Your ABox (less likely TBox) is inconsistent. Check your PhenoScript files for illogical statements, then re-run Convert to OWL and Materialize (ABox -> KB). ==="; else echo "=== Success: your dataset is consistent. ==="; fi',
+						];
+						const tmpScript = path.join(os.tmpdir(), 'phs-materialize.sh');
+						await fs.promises.writeFile(tmpScript, scriptLines.join('\n') + '\n', { mode: 0o755 });
+
+						const materializeCommand =
+							envPrefix +
+							'docker run --rm' +
+							` -v "${toDockerPath(owlInitDir)}:/app/owl_init"` +
+							` -v "${toDockerPath(sourceOntologiesDir)}:/app/source_ontologies"` +
+							` -v "${toDockerPath(aboxDir)}:/app/abox"` +
+							` -v "${toDockerPath(utilsDir)}:/app/utils"` +
+							` -v "${toDockerPath(logMaterializerDir)}:/app/log-materializer"` +
+							` -v "${toDockerPath(kbDir)}:/app/kb"` +
+							` -v "${toDockerPath(tmpScript)}:/app/run.sh"` +
+							' --entrypoint /bin/sh' +
+							' sergeit215/phenoscript-docker:latest' +
+							' /app/run.sh';
+
+						this._phenoscriptTerminal.sendText(materializeCommand);
+						vscode.window.showInformationMessage(`Materializing ${projectName}...`);
+					} catch (error) {
+						vscode.window.showErrorMessage(`Materialization failed: ${error.message}`);
+						console.error(error);
+					}
+					break;
+				case "submit":
+					try {
+						// Resolve project dir
+						let projectDir = null;
+						const activeEditor = vscode.window.activeTextEditor;
+						if (activeEditor) {
+							const dir = path.dirname(activeEditor.document.fileName);
+							if (fs.existsSync(path.join(dir, 'phs-config.yaml'))) {
+								projectDir = path.dirname(dir);
+							} else if (fs.existsSync(path.join(dir, 'phenotypes', 'phs-config.yaml'))) {
+								projectDir = dir;
+							}
+						}
+						if (!projectDir && vscode.workspace.workspaceFolders) {
+							for (const wf of vscode.workspace.workspaceFolders) {
+								if (fs.existsSync(path.join(wf.uri.fsPath, 'phenotypes', 'phs-config.yaml'))) {
+									projectDir = wf.uri.fsPath;
+									break;
+								}
+							}
+						}
+						if (!projectDir) {
+							vscode.window.showErrorMessage('No PhenoScript project found. Open a project folder first.');
+							return;
+						}
+
+						const projectName = path.basename(projectDir);
+						const logShaclDir = path.join(projectDir, 'output', 'log-shacl');
+						const materializerLog = path.join(projectDir, 'output', 'log-materializer', 'materializer.log');
+						const submitDir = path.join(projectDir, 'submit');
+
+						// Always delete any existing zip files in submit/ before checking
+						await fs.promises.mkdir(submitDir, { recursive: true });
+						for (const f of await fs.promises.readdir(submitDir)) {
+							if (f.endsWith('.zip')) {
+								await fs.promises.unlink(path.join(submitDir, f));
+							}
+						}
+
+						// --- Check SHACL logs ---
+						const shaclFailed = [];
+						if (!fs.existsSync(logShaclDir) || fs.readdirSync(logShaclDir).filter(f => f.endsWith('.txt')).length === 0) {
+							shaclFailed.push('__no_logs__');
+						} else {
+							const logFiles = fs.readdirSync(logShaclDir).filter(f => f.endsWith('.txt'));
+							for (const logFile of logFiles) {
+								const content = fs.readFileSync(path.join(logShaclDir, logFile), 'utf8');
+								if (!content.includes('Conforms')) {
+									// Strip .shacl.txt suffix to show the source filename
+									const sourceName = logFile.replace(/\.shacl\.txt$/, '.yphs');
+									shaclFailed.push(sourceName);
+								}
+							}
+						}
+
+						// --- Check materializer log ---
+						let materializerMissing = false;
+						let materializerInconsistent = false;
+						if (!fs.existsSync(materializerLog)) {
+							materializerMissing = true;
+						} else {
+							const content = fs.readFileSync(materializerLog, 'utf8');
+							if (content.includes('Inconsistent')) {
+								materializerInconsistent = true;
+							}
+						}
+
+						// --- Set up terminal ---
+						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
+							this._phenoscriptTerminal = vscode.window.terminals.find(
+								(t) => t.name === 'PhenoScript'
+							) || vscode.window.createTerminal('PhenoScript');
+						}
+						this._phenoscriptTerminal.show();
+						this._phenoscriptTerminal.sendText('clear');
+
+						const hasErrors = shaclFailed.length > 0 || materializerMissing || materializerInconsistent;
+
+						// Build summary lines entirely in JS, then emit as a single temp script
+						// so the terminal shows one command + clean output (no command echoing).
+						const lines = ['=== Submission Check ==='];
+
+						if (materializerMissing) {
+							lines.push('Reasoner (whelk): No log found. Run Materialize (ABox -> KB) first.');
+						} else if (materializerInconsistent) {
+							lines.push('Reasoner (whelk): FAILED — inconsistent dataset. Fix illogical statements.');
+							// lines.push('                  PhenoScript files, then re-run Convert to OWL and Materialize.');
+						} else {
+							lines.push('Reasoner (whelk): Passed');
+						}
+
+						if (shaclFailed.includes('__no_logs__')) {
+							lines.push('SHACL:            No log files found. Run Convert to OWL + Text first.');
+						} else if (shaclFailed.length > 0) {
+							lines.push('SHACL:            FAILED');
+							for (const fname of shaclFailed) {
+								lines.push(`                  - ${fname}`);
+							}
+						} else {
+							lines.push('SHACL:            Passed');
+						}
+
+						lines.push('');
+
+						const toDockerPath = (p) => p.split(path.sep).join('/');
+						const tmpSubmitScript = path.join(os.tmpdir(), 'phs-submit-check.sh');
+
+						if (hasErrors) {
+							lines.push('Submission package was NOT created.');
+							lines.push('Fix the issues above and rerun the full pipeline.');
+							const scriptContent = '#!/bin/sh\n' +
+								lines.map(l => `printf '%s\\n' "${l.replace(/"/g, '\\"')}"`).join('\n') + '\n';
+							await fs.promises.writeFile(tmpSubmitScript, scriptContent, { mode: 0o755 });
+							this._phenoscriptTerminal.sendText(`sh "${toDockerPath(tmpSubmitScript)}"`);
+						} else {
+							const phenotypesDir = path.join(projectDir, 'phenotypes');
+							const zipPath = path.join(submitDir, `${projectName}.zip`);
+							lines.push(`Package saved to: ${zipPath}`);
+							const scriptContent = '#!/bin/sh\n' +
+								lines.map(l => `printf '%s\\n' "${l.replace(/"/g, '\\"')}"`).join('\n') + '\n' +
+								`cd "${toDockerPath(phenotypesDir)}" && zip -q -r "${toDockerPath(zipPath)}" .\n`;
+							await fs.promises.writeFile(tmpSubmitScript, scriptContent, { mode: 0o755 });
+							this._phenoscriptTerminal.sendText(`sh "${toDockerPath(tmpSubmitScript)}"`);
+						}
+					} catch (error) {
+						vscode.window.showErrorMessage(`Submission preparation failed: ${error.message}`);
 						console.error(error);
 					}
 					break;
@@ -337,23 +676,6 @@ class PHSSidebarViewProvider {
 		});
 	}
 
-	// Add this helper method to copy directories recursively
-	async copyDirectory(src, dest) {
-		const entries = await fs.promises.readdir(src, { withFileTypes: true });
-
-		await fs.promises.mkdir(dest, { recursive: true });
-
-		for (const entry of entries) {
-			const srcPath = path.join(src, entry.name);
-			const destPath = path.join(dest, entry.name);
-
-			if (entry.isDirectory()) {
-				await this.copyDirectory(srcPath, destPath);
-			} else {
-				await fs.promises.copyFile(srcPath, destPath);
-			}
-		}
-	}
 }
 
 function deactivate() {}

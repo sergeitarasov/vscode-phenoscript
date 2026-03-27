@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../../../../../../GitHub/phenoscript-docker"
 		}
 	],
 	"settings": {}

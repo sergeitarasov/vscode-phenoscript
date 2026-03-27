@@ -12,6 +12,25 @@ Phenoscript is a computer language designed for describing species using ontolog
 
 ## Features
 ![](https://raw.githubusercontent.com/sergeitarasov/vscode-phenoscript/main/example.png)
+
+## Project Setup & OWL Conversion (v0.0.24+)
+
+The extension sidebar provides two commands:
+
+**Create Project** — scaffolds a new PhenoScript project with the correct directory structure:
+```
+my_project/
+├── phenotypes/
+│   ├── phs-config.yaml   ← fill in your name, ORCID, and project title
+│   └── my_species.yphs   ← your phenotype description file
+├── source_ontologies/
+└── output/
+    └── owl_init/         ← converted OWL files appear here
+```
+
+**Convert to OWL** — converts the active `.phs` or `.yphs` file to OWL ontology (`.owl` + `.xml`) using the [phenoscript-docker](https://hub.docker.com/r/sergeit215/phenoscript-docker) image.
+
+> **Prerequisite:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) must be installed and running. The Docker image is pulled automatically on first use — no manual setup required.
 <!-- > Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow. -->
 
 

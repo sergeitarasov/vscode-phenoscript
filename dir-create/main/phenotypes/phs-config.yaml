@@ -1,23 +1,31 @@
-# ADD snippet directory
-# Specify the snippet directory that is used by your VS code, something like: C:\Users\giuli\.vscode\extensions\tarasov-lab.phenoscript-0.0.14\snippets\
-# Depending on your system it is located in:
-#   Win: `%USERPROFILE%\.vscode\extensions`
-#   Mac:`$HOME/.vscode/extensions`
-#   Linux: `$HOME/.vscode/extensions`
-#snippet-dir: /Users/taravser/.vscode/extensions/tarasov-lab.phenoscript-0.0.17/snippets
-# snippet-dir: ~/.vscode/extensions/tarasov-lab.phenoscript-0.0.17/snippets
+# =============================================================
+#  PROJECT CONFIGURATION — PLEASE FILL IN BEFORE STARTING
+# =============================================================
+#
+#  1. AUTHORS
+#     Add the full name and ORCID of each author.
+#     Get your ORCID at: https://orcid.org
+#     Format:  'First Last': https://orcid.org/0000-0000-0000-0000
+#              'Another Author': https://orcid.org/0000-0000-0000-0001
+#
+#  2. PROJECT TITLE
+#     Replace the placeholder with a short descriptive title
+#     for your phenotypic dataset.
+#
+#  All other settings below (ontologies, namespaces) are
+#  pre-configured and do not need to be changed for typical use.
+#
+# =============================================================
+
 snippet-dir: ''
-# ADD the names of the authors and ORCID
+# ADD the names of the authors and ORCID (https://orcid.org)
 authors:
-  'Giulio Montanaro': https://orcid.org/0000-0003-0836-1364
-  'Sergei Tarasov': https://orcid.org/0000-0001-5237-2330
+  'Your Name': https://orcid.org/0000-0000-0000-0000
 # ADD a short title of your project
-project-title: "New Scarabaeus (Coleoptera: Scarabaeinae) from Madagascar"
+project-title: "My PhenoScript Project"
 importOntologies:
-  - https://raw.githubusercontent.com/sergeitarasov/aism/devel/src/ontology/aism-edit.owl
-  #- http://purl.obolibrary.org/obo/aism.owl
-  - https://raw.githubusercontent.com/sergeitarasov/colao/devel/src/ontology/colao-edit.owl
-  #- http://purl.obolibrary.org/obo/colao.owl
+  - http://purl.obolibrary.org/obo/aism.owl
+  - http://purl.obolibrary.org/obo/colao.owl
   - https://raw.githubusercontent.com/sergeitarasov/PhenoScript/main/phenospy_package/phenospy/package-data/phenoscript.owl
   - http://purl.obolibrary.org/obo/pato.owl
   - http://purl.obolibrary.org/obo/bspo.owl
@@ -55,4 +63,3 @@ namespace:
     phs:      https://github.com/sergeitarasov/PhenoScript/PHS_
     uberon:   http://purl.obolibrary.org/obo/UBERON_
     taxrank:  http://purl.obolibrary.org/obo/TAXRANK_
-    # obo: http://purl.obolibrary.org/obo/
