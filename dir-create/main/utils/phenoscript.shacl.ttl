@@ -62,5 +62,10 @@ ps:TaxonShape a sh:NodeShape ;
             [ sh:nodeKind sh:IRI ]
             [ sh:datatype xsd:string ]
             [ sh:datatype xsd:anyURI ]
-        )
+        ) ;
+        sh:qualifiedValueShape [
+            sh:datatype xsd:string ;
+            sh:pattern "^ott_id:"
+        ] ;
+        sh:qualifiedMinCount 1 ;
     ] .

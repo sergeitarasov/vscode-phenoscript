@@ -2,6 +2,7 @@ const vscode = require("vscode");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const cp = require("child_process");
 
 let wordPanel = null;
 const snippetsPath = path.join(__dirname, "snippets", "phs-snippets.json");
@@ -161,6 +162,8 @@ class PHSSidebarViewProvider {
 		this._extensionUri = extensionUri;
 		this._context = context;
 		this._phenoscriptTerminal = undefined;
+		this._outputChannel = vscode.window.createOutputChannel('PhenoScript');
+		context.subscriptions.push(this._outputChannel);
 
 		// Clean up terminal reference when it's closed
 		context.subscriptions.push(
@@ -422,10 +425,11 @@ class PHSSidebarViewProvider {
 						this._phenoscriptTerminal.sendText('clear');
 
 						// Commands run inside the container:
-						//   1. phenospy fetch-ontos  — downloads ontologies listed in phs-config.yaml
-						//   2. robot merge           — merges all .owl files + query.ttl into tbox.owl
-						//   3. robot remove          — strips individuals from tbox.owl
-						const shellCmd = [
+						// Write pipeline to temp script — avoids inline quoting issues on all platforms
+						const tmpOntoScript = path.join(os.tmpdir(), 'phs-get-ontos.sh');
+						await fs.promises.writeFile(tmpOntoScript, [
+							'#!/bin/sh',
+							'set -e',
 							'phenospy fetch-ontos /app/input/phs-config.yaml /app/source_ontologies',
 							'echo "=== All ontologies downloaded ==="',
 							'echo "=== robot: merging ontologies into tbox.owl... ==="',
@@ -433,16 +437,17 @@ class PHSSidebarViewProvider {
 							'echo "=== robot: removing individuals from tbox.owl... ==="',
 							'robot remove --input /app/source_ontologies/tbox.owl --select individuals --output /app/source_ontologies/tbox.owl',
 							'echo "=== Done: tbox.owl is ready ==="',
-						].join(' && ');
+						].join('\n') + '\n', { mode: 0o755 });
 
 						const ontoDockerCommand =
 							envPrefix +
 							'docker run --rm' +
 							` -v "${toDockerPath(phenotypesDir)}:/app/input"` +
 							` -v "${toDockerPath(sourceOntologiesDir)}:/app/source_ontologies"` +
+							` -v "${toDockerPath(tmpOntoScript)}:/app/run.sh"` +
 							' --entrypoint /bin/sh' +
 							' sergeit215/phenoscript-docker:latest' +
-							` -c '${shellCmd}'`;
+							' /app/run.sh';
 
 						this._phenoscriptTerminal.sendText(ontoDockerCommand);
 						vscode.window.showInformationMessage('Fetching and merging ontologies...');
@@ -610,19 +615,9 @@ class PHSSidebarViewProvider {
 							}
 						}
 
-						// --- Set up terminal ---
-						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
-							this._phenoscriptTerminal = vscode.window.terminals.find(
-								(t) => t.name === 'PhenoScript'
-							) || vscode.window.createTerminal('PhenoScript');
-						}
-						this._phenoscriptTerminal.show();
-						this._phenoscriptTerminal.sendText('clear');
-
 						const hasErrors = shaclFailed.length > 0 || materializerMissing || materializerInconsistent;
 
-						// Build summary lines entirely in JS, then emit as a single temp script
-						// so the terminal shows one command + clean output (no command echoing).
+						// Build summary lines in JS
 						const lines = ['=== Submission Check ==='];
 
 						if (materializerMissing) {
@@ -647,25 +642,42 @@ class PHSSidebarViewProvider {
 
 						lines.push('');
 
-						const toDockerPath = (p) => p.split(path.sep).join('/');
-						const tmpSubmitScript = path.join(os.tmpdir(), 'phs-submit-check.sh');
-
 						if (hasErrors) {
 							lines.push('Submission package was NOT created.');
 							lines.push('Fix the issues above and rerun the full pipeline.');
-							const scriptContent = '#!/bin/sh\n' +
-								lines.map(l => `printf '%s\\n' "${l.replace(/"/g, '\\"')}"`).join('\n') + '\n';
-							await fs.promises.writeFile(tmpSubmitScript, scriptContent, { mode: 0o755 });
-							this._phenoscriptTerminal.sendText(`sh "${toDockerPath(tmpSubmitScript)}"`);
+						}
+
+						// Show summary in VS Code Output Channel — no shell required, works on all platforms
+						this._outputChannel.clear();
+						this._outputChannel.show(true);
+						for (const line of lines) { this._outputChannel.appendLine(line); }
+
+						if (hasErrors) {
+							vscode.window.showWarningMessage('Submission check failed. See PhenoScript output panel for details.');
 						} else {
 							const phenotypesDir = path.join(projectDir, 'phenotypes');
 							const zipPath = path.join(submitDir, `${projectName}.zip`);
-							lines.push(`Package saved to: ${zipPath}`);
-							const scriptContent = '#!/bin/sh\n' +
-								lines.map(l => `printf '%s\\n' "${l.replace(/"/g, '\\"')}"`).join('\n') + '\n' +
-								`cd "${toDockerPath(phenotypesDir)}" && zip -q -r "${toDockerPath(zipPath)}" .\n`;
-							await fs.promises.writeFile(tmpSubmitScript, scriptContent, { mode: 0o755 });
-							this._phenoscriptTerminal.sendText(`sh "${toDockerPath(tmpSubmitScript)}"`);
+							try {
+								await new Promise((resolve, reject) => {
+									if (process.platform === 'win32') {
+										// Windows: PowerShell Compress-Archive (available Win 10+)
+										cp.spawn('powershell', [
+											'-NoProfile', '-Command',
+											`Compress-Archive -Path "${phenotypesDir}\\*" -DestinationPath "${zipPath}" -Force`,
+										], { windowsHide: true })
+											.on('error', reject)
+											.on('close', (code) => code === 0 ? resolve() : reject(new Error(`Compress-Archive exited ${code}`)));
+									} else {
+										// macOS / Linux: zip
+										cp.exec(`zip -q -r "${zipPath}" .`, { cwd: phenotypesDir }, (err) => (err ? reject(err) : resolve()));
+									}
+								});
+								this._outputChannel.appendLine(`Package saved to: ${zipPath}`);
+								vscode.window.showInformationMessage(`Submission package ready: submit/${projectName}.zip`);
+							} catch (zipErr) {
+								this._outputChannel.appendLine(`ERROR: Failed to create zip: ${zipErr.message}`);
+								vscode.window.showErrorMessage(`Failed to create zip: ${zipErr.message}`);
+							}
 						}
 					} catch (error) {
 						vscode.window.showErrorMessage(`Submission preparation failed: ${error.message}`);
