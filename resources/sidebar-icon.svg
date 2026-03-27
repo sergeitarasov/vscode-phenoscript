@@ -1,14 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <!-- Main circle -->
-    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
-    
-    <!-- P letter -->
-    <path d="M8 7h6c1.1 0 2 .9 2 2s-.9 2-2 2H8V7z" fill="none" stroke="currentColor" stroke-width="2"/>
-    <path d="M8 7v10" stroke="currentColor" stroke-width="2"/>
-    
-    <!-- H letter -->
-    <path d="M14 11v6" stroke="currentColor" stroke-width="2"/>
-    <path d="M14 14h3" stroke="currentColor" stroke-width="2"/>
-    <path d="M17 11v6" stroke="currentColor" stroke-width="2"/>
+<svg width="24" height="24" viewBox="0 0 24 24"
+     xmlns="http://www.w3.org/2000/svg" fill="none">
+
+  <!-- Circle -->
+  <circle cx="12" cy="12" r="9"
+          stroke="currentColor"
+          stroke-width="2"/>
+
+  <!-- Letter P -->
+  <path d="M9 17V7H13
+           C15.2 7 16.5 8.3 16.5 10
+           C16.5 11.7 15.2 13 13 13H9"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
 </svg>
