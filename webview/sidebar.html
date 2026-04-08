@@ -54,6 +54,7 @@
 <body>
     <button id="createProject">Create Project</button>
     <button id="getOntologies">Get / Update Ontologies</button>
+    <button id="checkSyntax">Check Syntax</button>
     <button id="convertPhs">Convert to OWL + Text</button>
     <button id="materialize">Materialize (ABox &#8594; KB)</button>
     <button id="submit">Prepare for Submission</button>
@@ -99,6 +100,10 @@
 
         document.getElementById('getOntologies').addEventListener('click', () => {
             vscode.postMessage({ command: 'getOntologies' });
+        });
+
+        document.getElementById('checkSyntax').addEventListener('click', () => {
+            vscode.postMessage({ command: 'checkSyntax' });
         });
 
         document.getElementById('materialize').addEventListener('click', () => {

@@ -151,16 +151,179 @@ function activate(context) {
 	context.subscriptions.push(disposable);
 
 	// Register WebView Provider
-	const provider = new PHSSidebarViewProvider(context.extensionUri, context);
+	const syntaxDiagnostics = vscode.languages.createDiagnosticCollection('phenoscript-syntax');
+	context.subscriptions.push(syntaxDiagnostics);
+
+	const provider = new PHSSidebarViewProvider(context.extensionUri, context, syntaxDiagnostics);
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider("phsSidebar", provider)
 	);
 }
 
+/**
+ * Returns true if the given stripped/trimmed statement text contains two consecutive
+ * node tokens with no edge operator between them (e.g. "aism-antenna  aism-antennomere").
+ *
+ * Tokenises the line with a minimal regex and walks the token stream.
+ * Edge tokens  : >  <  >>  <<  ->  <-  |>|  |<|  negated variants  dot-properties
+ * Delimiter tokens: ( ) ,  — reset the "last was node" flag without being nodes
+ * Node tokens  : identifiers (prefix-term[:tag]), numbers, strings, `this`
+ */
+function hasAdjacentNodes(text) {
+	// Strip command lists e.g. [linksTraits = True] before tokenising
+	const clean = text.replace(/\[[^\]]*\]/g, ' ');
+
+	// Token regex — longer alternatives must come before shorter ones
+	const TOKEN_RE = /\|>\||\|<\||>>|<<|->|<-|!(?:>>|<<|->|<-|[><])|\.[\w][\w\-.]*|'[^']*'|"[^"]*"|\d+(?:\.\d+)?|[><]|[\w][\w-]*(?::[\w\-\d]+)?|[(),;]/g;
+
+	function isEdgeLike(t) {
+		if (t === '>' || t === '<' || t === '>>' || t === '<<' ||
+			t === '->' || t === '<-' || t === '|>|' || t === '|<|') return true;
+		if (t[0] === '!') return true;  // negated edge (e.g. !>)
+		if (t[0] === '.') return true;  // dot property  (e.g. .rdfs-label)
+		return false;
+	}
+
+	let lastWasNode = false;
+	let match;
+	TOKEN_RE.lastIndex = 0;
+	while ((match = TOKEN_RE.exec(clean)) !== null) {
+		const t = match[0];
+		if (t === ';') break;
+		if (isEdgeLike(t) || t === '(' || t === ')' || t === ',') {
+			lastWasNode = false;
+		} else {
+			// anything else is node-like (identifier, number, string)
+			if (lastWasNode) return true; // two nodes in a row — missing edge
+			lastWasNode = true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Checks a PhenoScript (.yphs) document for statements missing a terminating semicolon.
+ * Returns an array of vscode.Diagnostic (Warning severity) for each offending line.
+ *
+ * Algorithm:
+ *   - Track brace depth; statement lines live at depth >= 2 (inside DATA={} / TRAITS={})
+ *   - Strip line comments (#...) before analysing, but respect string literals
+ *   - Skip structural lines (block headers like "OTU = {", "DATA = {", bare "{" / "}")
+ *   - A line that doesn't end with ";" is OK if the NEXT content line starts with a
+ *     continuation token (>, <, >>, <<, ->, <-, |>|, |<|, !, ., ,, (, )) meaning the
+ *     statement continues on the next line.
+ *   - Otherwise it's flagged as missing ";".
+ *
+ * @param {vscode.TextDocument} document
+ * @returns {vscode.Diagnostic[]}
+ */
+function checkPhsSyntax(document) {
+	// Operators that may legitimately start a continuation line
+	const CONTINUATION_RE = /^\s*(?:>>|<<|->|<-|\|>\||<\||>|<|!|\.|,|\(|\))/;
+	// Structural lines to skip: block headers or bare braces
+	const STRUCTURAL_RE = /^\s*(?:\w[\w\s]*=\s*\{|[{}]\s*;?\s*)$/;
+
+	/**
+	 * Strip a #-initiated comment from a raw source line, respecting single- and
+	 * double-quoted strings so a # inside a string is not treated as a comment.
+	 */
+	function stripComment(raw) {
+		let inSingle = false;
+		let inDouble = false;
+		for (let i = 0; i < raw.length; i++) {
+			const ch = raw[i];
+			if (ch === "'" && !inDouble) { inSingle = !inSingle; continue; }
+			if (ch === '"' && !inSingle) { inDouble = !inDouble; continue; }
+			if (ch === '#' && !inSingle && !inDouble) {
+				return raw.slice(0, i);
+			}
+		}
+		return raw;
+	}
+
+	const diagnostics = [];
+	const lineCount = document.lineCount;
+
+	// Build a list of {lineIndex, text} for content lines inside DATA/TRAITS blocks
+	let depth = 0;
+	let inYamlBlock = false;
+	/** @type {{lineIndex: number, text: string}[]} */
+	const contentLines = [];
+
+	for (let i = 0; i < lineCount; i++) {
+		const raw = document.lineAt(i).text;
+
+		// Track YAML block boundaries (raw line, before comment stripping)
+		if (/^\s*#>>>YAML/.test(raw)) { inYamlBlock = true; continue; }
+		if (/^\s*#<<<YAML/.test(raw)) { inYamlBlock = false; continue; }
+		if (inYamlBlock) continue;
+
+		const stripped = stripComment(raw).trim();
+
+		// Update brace depth (count { and } in the stripped line)
+		for (const ch of stripped) {
+			if (ch === '{') depth++;
+			else if (ch === '}') depth--;
+		}
+
+		if (stripped === '') continue;           // blank / comment-only line
+		if (STRUCTURAL_RE.test(stripped)) continue; // OTU={, DATA={, TRAITS={, }, etc.
+		if (depth < 2) continue;                 // outside a DATA/TRAITS block
+
+		contentLines.push({ lineIndex: i, text: stripped });
+	}
+
+	// Walk collected lines and flag issues
+	for (let j = 0; j < contentLines.length; j++) {
+		const { lineIndex, text } = contentLines[j];
+
+		// Check for adjacent nodes (missing edge operator) on this line
+		if (hasAdjacentNodes(text)) {
+			const line = document.lineAt(lineIndex);
+			const range = new vscode.Range(
+				new vscode.Position(lineIndex, 0),
+				new vscode.Position(lineIndex, line.text.length)
+			);
+			const diag = new vscode.Diagnostic(
+				range,
+				'Missing edge operator: two nodes appear adjacent without ">" / ">>" / etc. between them',
+				vscode.DiagnosticSeverity.Warning
+			);
+			diag.source = 'PhenoScript';
+			diagnostics.push(diag);
+			continue; // already flagged — skip semicolon check for this line
+		}
+
+		// Check for missing terminating semicolon
+		if (text.endsWith(';')) continue; // properly terminated
+
+		// Look at next content line (if any)
+		const next = contentLines[j + 1];
+		if (next && CONTINUATION_RE.test(next.text)) continue; // multi-line statement
+
+		// Flag this line
+		const line = document.lineAt(lineIndex);
+		const range = new vscode.Range(
+			new vscode.Position(lineIndex, 0),
+			new vscode.Position(lineIndex, line.text.length)
+		);
+		const diag = new vscode.Diagnostic(
+			range,
+			'Missing semicolon: statement should end with ";"',
+			vscode.DiagnosticSeverity.Warning
+		);
+		diag.source = 'PhenoScript';
+		diagnostics.push(diag);
+	}
+
+	return diagnostics;
+}
+
 class PHSSidebarViewProvider {
-	constructor(extensionUri, context) {
+	constructor(extensionUri, context, syntaxDiagnostics) {
 		this._extensionUri = extensionUri;
 		this._context = context;
+		this._syntaxDiagnostics = syntaxDiagnostics;
 		this._phenoscriptTerminal = undefined;
 		this._outputChannel = vscode.window.createOutputChannel('PhenoScript');
 		context.subscriptions.push(this._outputChannel);
@@ -220,11 +383,9 @@ class PHSSidebarViewProvider {
 								const phenotypesDir = path.join(targetDir, "phenotypes");
 								const sourceOntologiesDir = path.join(targetDir, "source_ontologies");
 								const owlRawDir = path.join(targetDir, "output", "owl_init");
-								const utilsDir = path.join(targetDir, "utils");
-								await fs.promises.mkdir(phenotypesDir, { recursive: true });
+									await fs.promises.mkdir(phenotypesDir, { recursive: true });
 								await fs.promises.mkdir(sourceOntologiesDir, { recursive: true });
 								await fs.promises.mkdir(owlRawDir, { recursive: true });
-								await fs.promises.mkdir(utilsDir, { recursive: true });
 								await fs.promises.mkdir(path.join(targetDir, "output", "log-shacl"), { recursive: true });
 								await fs.promises.mkdir(path.join(targetDir, "output", "log-materializer"), { recursive: true });
 								await fs.promises.mkdir(path.join(targetDir, "output", "abox"), { recursive: true });
@@ -237,15 +398,6 @@ class PHSSidebarViewProvider {
 										path.join(templateDir, "phenotypes", file),
 										path.join(phenotypesDir, file)
 									);
-								}
-
-								// Copy utils files (shacl shapes + annotate query)
-								const utilsFiles = ["phenoscript.shacl.ttl", "annotate.ru"];
-								for (const file of utilsFiles) {
-									const src = path.join(templateDir, "utils", file);
-									if (fs.existsSync(src)) {
-										await fs.promises.copyFile(src, path.join(utilsDir, file));
-									}
 								}
 
 								const uri = vscode.Uri.file(targetDir);
@@ -316,21 +468,19 @@ class PHSSidebarViewProvider {
 						const phenotypesDir = path.join(projectDir, 'phenotypes');
 						const owlRawDir = path.join(projectDir, 'output', 'owl_init');
 						const nlDir = path.join(projectDir, 'output', 'nl');
-							const utilsDir = path.join(projectDir, 'utils');
-							const logShaclDir = path.join(projectDir, 'output', 'log-shacl');
-							const snippetsDir = path.join(this._extensionUri.fsPath, 'snippets');
+						const utilsDir = path.join(this._extensionUri.fsPath, 'dir-create', 'main', 'utils');
+						const logShaclDir = path.join(projectDir, 'output', 'log-shacl');
+						const snippetsDir = path.join(this._extensionUri.fsPath, 'snippets');
 
-							// NL format chosen in the sidebar (html | md | both)
-							const nlFormat = message.nlFormat || 'html';
-							// GBIF taxonomy flag — adds -g to phenospy yphs2owl when true
-							const gbif = message.gbif !== false; // default true
+						// NL format chosen in the sidebar (html | md | both)
+						const nlFormat = message.nlFormat || 'html';
+						// GBIF taxonomy flag — adds -g to phenospy yphs2owl when true
+						const gbif = message.gbif !== false; // default true
 
-							// Ensure output dirs exist (in case user didn't use Create Project)
-							await fs.promises.mkdir(owlRawDir, { recursive: true });
-							await fs.promises.mkdir(nlDir, { recursive: true });
-							await fs.promises.mkdir(logShaclDir, { recursive: true });
-							// utils/ may not exist if project was created without it — skip gracefully
-							await fs.promises.mkdir(utilsDir, { recursive: true });
+						// Ensure output dirs exist (in case user didn't use Create Project)
+						await fs.promises.mkdir(owlRawDir, { recursive: true });
+						await fs.promises.mkdir(nlDir, { recursive: true });
+						await fs.promises.mkdir(logShaclDir, { recursive: true });
 						const toDockerPath = (p) => p.split(path.sep).join('/');
 
 						// On Windows with Git Bash, MSYS path conversion mangles container-side
@@ -355,7 +505,7 @@ class PHSSidebarViewProvider {
 						//   /app/snippets  ← extension snippets/ (provides phs-snippets.json)
 						//   /app/output    ← project output/owl_init/ (receives .owl + .xml)
 						//   /app/nl_output ← project output/nl/ (receives .html / .md)
-						//   /app/utils     ← project utils/ (contains shacl shapes)
+						//   /app/utils     ← extension dir-create/main/utils/ (contains shacl shapes)
 						//   /app/log-shacl ← project output/log-shacl/ (receives shacl logs)
 						const dockerCommand =
 							envPrefix +
@@ -375,6 +525,38 @@ class PHSSidebarViewProvider {
 						vscode.window.showInformationMessage(`Converting ${fileName} to OWL + natural language (${nlFormat})...`);
 					} catch (error) {
 						vscode.window.showErrorMessage(`Conversion failed: ${error.message}`);
+						console.error(error);
+					}
+					break;
+
+				case "checkSyntax":
+					try {
+						const editor = vscode.window.activeTextEditor;
+						if (!editor) {
+							vscode.window.showErrorMessage('No active editor. Open a .yphs file first.');
+							break;
+						}
+						if (!editor.document.fileName.endsWith('.yphs')) {
+							vscode.window.showErrorMessage('Check Syntax only works on .yphs files.');
+							break;
+						}
+						const diagnostics = checkPhsSyntax(editor.document);
+						this._syntaxDiagnostics.clear();
+						this._syntaxDiagnostics.set(editor.document.uri, diagnostics);
+
+						this._outputChannel.clear();
+						this._outputChannel.show(true);
+						if (diagnostics.length === 0) {
+							this._outputChannel.appendLine('=== Check Syntax: No issues found ===');
+						} else {
+							this._outputChannel.appendLine(`=== Check Syntax: Found ${diagnostics.length} syntax issue${diagnostics.length > 1 ? 's' : ''} ===`);
+							for (const d of diagnostics) {
+								this._outputChannel.appendLine(`  Line ${d.range.start.line + 1}: ${editor.document.lineAt(d.range.start.line).text.trim()}`);
+							}
+							await vscode.commands.executeCommand('workbench.panel.markers.view.focus');
+						}
+					} catch (error) {
+						vscode.window.showErrorMessage(`Syntax check failed: ${error.message}`);
 						console.error(error);
 					}
 					break;
@@ -487,7 +669,7 @@ class PHSSidebarViewProvider {
 						const owlInitDir       = path.join(projectDir, 'output', 'owl_init');
 						const sourceOntologiesDir = path.join(projectDir, 'source_ontologies');
 						const aboxDir          = path.join(projectDir, 'output', 'abox');
-						const utilsDir         = path.join(projectDir, 'utils');
+						const utilsDir         = path.join(this._extensionUri.fsPath, 'dir-create', 'main', 'utils');
 						const logMaterializerDir = path.join(projectDir, 'output', 'log-materializer');
 						const kbDir            = path.join(projectDir, 'output', 'kb');
 

@@ -30,6 +30,7 @@ OTU = { #// OTUName:  Addd OTU/SPECIES NAME HERE
     # Correct
     aism-gena >> pato-sharp;
     pato-sharp << aism-mid_leg;
+    aism-thoracic_foramen > uberon-head > aism-pronoto-mesonotal_conjunctiva;
 
     #-------- Missing semicolons
     this > uberon-leg
@@ -39,7 +40,7 @@ OTU = { #// OTUName:  Addd OTU/SPECIES NAME HERE
     
     this > uberon-leg aism-pronotum > head;
     this > uberon-leg: aism-pronotum > head;
-    this > aism-abdomen_with_7_sternites aism-katepimeron; 
+    aism-abdomen_with_7_sternites  aism-katepimeron; 
 
     #---------  should be 
     this > uberon-leg;
@@ -48,6 +49,7 @@ OTU = { #// OTUName:  Addd OTU/SPECIES NAME HERE
     # OR
     this > uberon-leg; aism-pronotum > head;
     this > uberon-leg; aism-pronotum > head;
+    aism-abdomen_with_7_sternites > aism-katepimeron; 
 
     #
     #-------- Missing semicolon
