@@ -359,7 +359,15 @@ function activate(context) {
 			sparklisSession = { containerId, server: httpServer, statusBarItem, fusekiPort, sparklisSrvPort };
 
 			const endpoint = encodeURIComponent(`http://localhost:${fusekiPort}/ds/sparql`);
-			const sparkiisUrl = `http://localhost:${sparklisSrvPort}/osparklis.html?title=PhenoScript+KB&endpoint=${endpoint}`;
+			const rdfsLabel = encodeURIComponent('http://www.w3.org/2000/01/rdf-schema#label');
+			const regexpHidden = encodeURIComponent('^(http://www.w3.org/2002/07/owl#|http://www.openlinksw.com/|nodeID://)');
+			const sparkiisUrl = `http://localhost:${sparklisSrvPort}/osparklis.html?title=PhenoScript+KB` +
+				`&endpoint=${endpoint}` +
+				`&regexp_hidden_URIs=${regexpHidden}` +
+				`&entity_lexicon_select=${rdfsLabel}` +
+				`&concept_lexicons_select=${rdfsLabel}` +
+				`&entity_tooltips_select=${rdfsLabel}` +
+				`&concept_tooltips_select=${rdfsLabel}`;
 			await vscode.env.openExternal(vscode.Uri.parse(sparkiisUrl));
 			vscode.window.showInformationMessage('Sparklis browser open. Click "Stop Sparklis" in the status bar when done.');
 		} catch (err) {

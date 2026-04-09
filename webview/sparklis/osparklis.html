@@ -27,6 +27,15 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 <!-- Sparklis -->
 <link href="osparklis.css?v=2" rel="stylesheet" type="text/css"/>
+<!-- Patch: decodeURI leaves %23 encoded (it's a URI reserved char), but Sparklis
+     uses it to decode query-param values like property URIs that contain #.
+     Ensure %23 → # so regexp_hidden_URIs and similar params work correctly. -->
+<script>
+(function () {
+  var _orig = window.decodeURI;
+  window.decodeURI = function (s) { return _orig(s).replace(/%23/g, '#'); };
+})();
+</script>
 <script src="osparklis.js"></script>
 <!-- TEST JS API - example extension -->
 <!-- <script src="example_extension.js"></script> -->
@@ -1744,5 +1753,22 @@
     <span class="texte lang-es"> para más información.</span>
     <span class="texte lang-nl"> voor meer informatie.</span>
   </footer>
+<script>
+// Run after Sparklis's own DOMContentLoaded init handlers.
+// Set rdfs:label as default in lexicon/tooltip selects if Sparklis left them empty.
+window.addEventListener('load', function () {
+  var RDFS_LABEL = 'http://www.w3.org/2000/01/rdf-schema#label';
+  ['config-label-entity-select',
+   'config-label-concept-select',
+   'config-entity-tooltips-select',
+   'config-concept-tooltips-select'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el && el.value === '') {
+      el.value = RDFS_LABEL;
+      el.dispatchEvent(new Event('change'));
+    }
+  });
+});
+</script>
 </body>
 </html>
