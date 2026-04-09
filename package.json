@@ -41,10 +41,25 @@
         }
       ]
     },
-    "commands": [{
-      "command": "phenoscript.ShowOntologyTermInfo",
-      "title": "phs Show Term Info"
-    }],
+    "commands": [
+      {
+        "command": "phenoscript.ShowOntologyTermInfo",
+        "title": "phs Show Term Info"
+      },
+      {
+        "command": "phenoscript.yphsToPhs",
+        "title": "YPHS → PHS (preview)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "phenoscript.yphsToPhs",
+          "when": "resourceExtname == '.yphs'",
+          "group": "navigation"
+        }
+      ]
+    },
     "keybindings": [
       {
           "command": "phenoscript.ShowOntologyTermInfo",

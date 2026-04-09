@@ -150,6 +150,79 @@ function activate(context) {
 
 	context.subscriptions.push(disposable);
 
+	// Command: convert active .yphs file to PHS and open result as ephemeral preview
+	const yphsToPhs = vscode.commands.registerCommand('phenoscript.yphsToPhs', async () => {
+		try {
+			const editor = vscode.window.activeTextEditor;
+			if (!editor) {
+				vscode.window.showErrorMessage('No active editor. Open a .yphs file first.');
+				return;
+			}
+			if (!editor.document.fileName.endsWith('.yphs')) {
+				vscode.window.showErrorMessage('YPHS \u2192 PHS only works on .yphs files.');
+				return;
+			}
+
+			const fileContent = editor.document.getText();
+			const toDockerPath = (p) => p.split(path.sep).join('/');
+			const activeShell = vscode.env.shell || '';
+			const isWinGitBash = process.platform === 'win32' && /bash/i.test(activeShell);
+
+			// Write a minimal Python wrapper to a temp file
+			const tmpScript = path.join(os.tmpdir(), 'phs-yphs2phs.py');
+			const pyScript = [
+				'import sys, os, yaml',
+				'from phenospy import render_yphs_to_phs, get_phenospyPath',
+				'tpl = os.path.join(get_phenospyPath(), "package-data", "yaml_temp", "phs_templates.yaml")',
+				'template_data = yaml.safe_load(open(tpl, encoding="utf-8"))',
+				'result = render_yphs_to_phs(sys.stdin.read(), template_data)',
+				'sys.stdout.write(result)',
+			].join('\n');
+			await fs.promises.writeFile(tmpScript, pyScript, 'utf8');
+
+			await vscode.window.withProgress(
+				{ location: vscode.ProgressLocation.Notification, title: 'Converting YPHS \u2192 PHS\u2026', cancellable: false },
+				() => new Promise((resolve, reject) => {
+					const dockerArgs = [
+						'run', '--rm', '-i',
+						'-v', `${toDockerPath(tmpScript)}:/app/run.py`,
+						'--entrypoint', 'python',
+						'sergeit215/phenoscript-docker:latest',
+						'/app/run.py',
+					];
+					const proc = cp.spawn(
+						isWinGitBash ? 'docker.exe' : 'docker',
+						dockerArgs,
+						{ env: { ...process.env, ...(isWinGitBash ? { MSYS_NO_PATHCONV: '1' } : {}) } }
+					);
+					proc.stdin.write(fileContent, 'utf8');
+					proc.stdin.end();
+
+					let stdout = '';
+					let stderr = '';
+					proc.stdout.on('data', (chunk) => { stdout += chunk; });
+					proc.stderr.on('data', (chunk) => { stderr += chunk; });
+					proc.on('close', async (code) => {
+						if (code !== 0 || (!stdout && stderr)) {
+							reject(new Error(stderr || `docker exited with code ${code}`));
+							return;
+						}
+						try {
+							const doc = await vscode.workspace.openTextDocument({ content: stdout, language: 'phs' });
+							await vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.Beside, preview: true });
+							resolve();
+						} catch (e) { reject(e); }
+					});
+					proc.on('error', reject);
+				})
+			);
+		} catch (error) {
+			vscode.window.showErrorMessage(`YPHS \u2192 PHS failed: ${error.message}`);
+			console.error(error);
+		}
+	});
+	context.subscriptions.push(yphsToPhs);
+
 	// Register WebView Provider
 	const syntaxDiagnostics = vscode.languages.createDiagnosticCollection('phenoscript-syntax');
 	context.subscriptions.push(syntaxDiagnostics);
