@@ -49,6 +49,14 @@
       {
         "command": "phenoscript.yphsToPhs",
         "title": "YPHS → PHS (preview)"
+      },
+      {
+        "command": "phenoscript.browseRdf",
+        "title": "PhenoScript: Browse with Sparklis"
+      },
+      {
+        "command": "phenoscript.stopRdfBrowser",
+        "title": "PhenoScript: Stop SPARQL Browser"
       }
     ],
     "menus": {
@@ -61,6 +69,13 @@
         {
           "command": "phenoscript.ShowOntologyTermInfo",
           "when": "resourceExtname == '.yphs' || resourceExtname == '.phs'",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "phenoscript.browseRdf",
+          "when": "resourceExtname == '.ttl' || resourceExtname == '.owl'",
           "group": "navigation"
         }
       ]

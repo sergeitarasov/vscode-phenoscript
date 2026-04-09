@@ -3,10 +3,68 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const cp = require("child_process");
+const net = require("net");
+const http = require("http");
 
 let wordPanel = null;
 const snippetsPath = path.join(__dirname, "snippets", "phs-snippets.json");
 const snippets = JSON.parse(fs.readFileSync(snippetsPath, "utf-8"));
+
+// State for the running Sparklis/Fuseki session
+let sparklisSession = null; // { containerId, fusekiPort, httpdPort, statusBarItem, server }
+
+/** Find a free TCP port */
+function findFreePort() {
+	return new Promise((resolve, reject) => {
+		const srv = net.createServer();
+		srv.listen(0, '127.0.0.1', () => {
+			const port = srv.address().port;
+			srv.close(() => resolve(port));
+		});
+		srv.on('error', reject);
+	});
+}
+
+/** Poll until Fuseki answers or timeout (ms) */
+function waitForFuseki(port, timeout = 30000) {
+	return new Promise((resolve, reject) => {
+		const start = Date.now();
+		function attempt() {
+			const req = http.get(`http://127.0.0.1:${port}/$/ping`, (res) => {
+				if (res.statusCode < 500) { resolve(); } else { retry(); }
+				res.resume();
+			});
+			req.on('error', retry);
+			req.end();
+		}
+		function retry() {
+			if (Date.now() - start > timeout) { reject(new Error('Fuseki did not start in time')); return; }
+			setTimeout(attempt, 1000);
+		}
+		attempt();
+	});
+}
+
+/** Serve the bundled Sparklis webapp over HTTP on a given port */
+function startSparklisHttpServer(sparklisDir, port) {
+	return new Promise((resolve, reject) => {
+		const server = http.createServer((req, res) => {
+			let filePath = path.join(sparklisDir, req.url === '/' ? '/osparklis.html' : req.url);
+			// Strip query string
+			filePath = filePath.split('?')[0];
+			fs.readFile(filePath, (err, data) => {
+				if (err) { res.writeHead(404); res.end('Not found'); return; }
+				const ext = path.extname(filePath).toLowerCase();
+				const mime = { '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css',
+				               '.png': 'image/png', '.jpg': 'image/jpeg' }[ext] || 'application/octet-stream';
+				res.writeHead(200, { 'Content-Type': mime });
+				res.end(data);
+			});
+		});
+		server.listen(port, '127.0.0.1', () => resolve(server));
+		server.on('error', reject);
+	});
+}
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -222,6 +280,108 @@ function activate(context) {
 		}
 	});
 	context.subscriptions.push(yphsToPhs);
+
+	// ── Browse with Sparklis ───────────────────────────────────────────────
+	const browseRdf = vscode.commands.registerCommand('phenoscript.browseRdf', async (uri) => {
+		try {
+			const filePath = uri ? uri.fsPath : vscode.window.activeTextEditor?.document.fileName;
+			if (!filePath) {
+				vscode.window.showErrorMessage('No file selected. Right-click a .ttl or .owl file in the Explorer.');
+				return;
+			}
+			const ext = path.extname(filePath).toLowerCase();
+			if (ext !== '.ttl' && ext !== '.owl') {
+				vscode.window.showErrorMessage('Browse with Sparklis only works on .ttl and .owl files.');
+				return;
+			}
+
+			// Stop any previous session
+			if (sparklisSession) {
+				cp.exec(`docker stop ${sparklisSession.containerId}`, () => {});
+				sparklisSession.server.close();
+				sparklisSession.statusBarItem.dispose();
+				sparklisSession = null;
+			}
+
+			const isWinGitBash = process.platform === 'win32' && /bash/i.test(vscode.env.shell || '');
+			const toDockerPath = (p) => p.split(path.sep).join('/');
+
+			const fusekiPort = await findFreePort();
+			const sparklisSrcDir = path.join(__dirname, 'webview', 'sparklis');
+			const sparklisSrvPort = await findFreePort();
+
+			// Write a temp shell script that: starts Fuseki, waits, then loads the RDF file
+			const tmpScript = path.join(os.tmpdir(), 'phs-sparklis.sh');
+			const contentType = ext === '.owl' ? 'application/rdf+xml' : 'text/turtle';
+			const sh = [
+				'#!/bin/sh',
+				`fuseki-server --port ${fusekiPort} --update --mem /ds &`,
+				'FPID=$!',
+				`until curl -sf http://127.0.0.1:${fusekiPort}/\\$/ping > /dev/null 2>&1; do sleep 0.5; done`,
+				`curl -sf -X POST http://127.0.0.1:${fusekiPort}/ds/data --data-binary @/app/rdffile -H 'Content-Type: ${contentType}' -o /dev/null`,
+				'wait $FPID',
+			].join('\n') + '\n';
+			fs.writeFileSync(tmpScript, sh, { mode: 0o755 });
+
+			const dockerArgs = [
+				'run', '--rm', '-d',
+				'-p', `${fusekiPort}:${fusekiPort}`,
+				'-v', `${toDockerPath(filePath)}:/app/rdffile:ro`,
+				'-v', `${toDockerPath(tmpScript)}:/app/start.sh:ro`,
+				'--entrypoint', '/bin/sh',
+				'sergeit215/phenoscript-docker:latest',
+				'/app/start.sh'
+			];
+			if (isWinGitBash) dockerArgs.unshift('MSYS_NO_PATHCONV=1');
+			const proc = cp.spawnSync(
+				isWinGitBash ? 'docker.exe' : 'docker',
+				dockerArgs,
+				{ env: { ...process.env, ...(isWinGitBash ? { MSYS_NO_PATHCONV: '1' } : {}) } }
+			);
+			if (proc.status !== 0) {
+				throw new Error(proc.stderr?.toString().trim() || `docker exited with code ${proc.status}`);
+			}
+			const containerId = proc.stdout.toString().trim();
+
+			// Start local HTTP server for Sparklis static files
+			const httpServer = await startSparklisHttpServer(sparklisSrcDir, sparklisSrvPort);
+
+			await vscode.window.withProgress(
+				{ location: vscode.ProgressLocation.Notification, title: 'PhenoScript: starting Sparklis…', cancellable: false },
+				() => waitForFuseki(fusekiPort)
+			);
+
+			const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
+			statusBarItem.text = '$(debug-stop) Stop Sparklis';
+			statusBarItem.command = 'phenoscript.stopRdfBrowser';
+			statusBarItem.tooltip = 'Stop the running Sparklis / Fuseki session';
+			statusBarItem.show();
+			sparklisSession = { containerId, server: httpServer, statusBarItem, fusekiPort, sparklisSrvPort };
+
+			const endpoint = encodeURIComponent(`http://localhost:${fusekiPort}/ds/sparql`);
+			const sparkiisUrl = `http://localhost:${sparklisSrvPort}/osparklis.html?title=PhenoScript+KB&endpoint=${endpoint}`;
+			await vscode.env.openExternal(vscode.Uri.parse(sparkiisUrl));
+			vscode.window.showInformationMessage('Sparklis browser open. Click "Stop Sparklis" in the status bar when done.');
+		} catch (err) {
+			vscode.window.showErrorMessage(`Browse with Sparklis failed: ${err.message}`);
+		}
+	});
+	context.subscriptions.push(browseRdf);
+
+	const stopRdfBrowser = vscode.commands.registerCommand('phenoscript.stopRdfBrowser', async () => {
+		if (!sparklisSession) {
+			vscode.window.showInformationMessage('No Sparklis session is running.');
+			return;
+		}
+		cp.exec(`docker stop ${sparklisSession.containerId}`, (err) => {
+			if (err) vscode.window.showErrorMessage(`Failed to stop container: ${err.message}`);
+			else     vscode.window.showInformationMessage('Sparklis browser stopped.');
+		});
+		sparklisSession.server.close();
+		sparklisSession.statusBarItem.dispose();
+		sparklisSession = null;
+	});
+	context.subscriptions.push(stopRdfBrowser);
 
 	// Register WebView Provider
 	const syntaxDiagnostics = vscode.languages.createDiagnosticCollection('phenoscript-syntax');
