@@ -44,7 +44,7 @@
     "commands": [
       {
         "command": "phenoscript.ShowOntologyTermInfo",
-        "title": "phs Show Term Info"
+        "title": "PHS: Show Term Info"
       },
       {
         "command": "phenoscript.yphsToPhs",
@@ -56,6 +56,11 @@
         {
           "command": "phenoscript.yphsToPhs",
           "when": "resourceExtname == '.yphs'",
+          "group": "navigation"
+        },
+        {
+          "command": "phenoscript.ShowOntologyTermInfo",
+          "when": "resourceExtname == '.yphs' || resourceExtname == '.phs'",
           "group": "navigation"
         }
       ]
