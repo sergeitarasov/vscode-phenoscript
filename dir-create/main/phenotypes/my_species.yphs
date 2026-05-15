@@ -15,6 +15,7 @@ described_species:
         - dwc-Preserved_Specimen
 #<<<YAML
 
+
 }
     TRAITS = {
 
@@ -24,26 +25,24 @@ this > aism-mid_leg:id-2c55e8;
 
 this > aism-insect_head > aism-antenna > aism-antennomere .phs-has_element_count 5;
 
-
-
 #>>>YAML absolute_measurement
 absolute_measurement:
-    measured_entity: aism-fore_leg:id-80ef54
-    measured_quality: pato-length
-    value: 3.0
-    unit: unit-millimeter
+    .measured_entity:  aism-fore_leg:id-80ef54
+    .measured_quality: pato-length
+    .value: 3.0
+    .unit: unit-millimeter
 #<<<YAML
 
 
 #>>>YAML relative_measurement
 relative_measurement:
-  measured_trait:
-    entity: aism-fore_leg:id-80ef54
-    quality: pato-length
-  unit:
-    entity: aism-mid_leg:id-2c55e8
-    quality: pato-length
-  value: 8.0
+  .measured_trait:
+    .entity: aism-fore_leg:id-80ef54
+    .quality: pato-length
+  .unit:
+    .entity: aism-mid_leg:id-2c55e8
+    .quality: pato-length
+  .value: 8.0
 #<<<YAML
 
 
