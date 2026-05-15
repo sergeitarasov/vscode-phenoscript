@@ -725,7 +725,7 @@
 "(C) pato-0040024": {
 "prefix": ["pato-bilaterally_paired"],
 "body": ["pato-bilaterally_paired"],
-"description": "(C): ",
+"description": "(C): The bearer of this quality has_part n=2 of the indicated entity type, where n is unpaired for a comparable organism.",
 "iri": "http://purl.obolibrary.org/obo/PATO_0040024",
 "label_4_translation": ["pato-bilaterally_paired"],
 "label_original": "bilaterally paired",
@@ -2291,7 +2291,7 @@
 "(C) pato-0000984": {
 "prefix": ["pato-porous"],
 "body": ["pato-porous"],
-"description": "(C): ",
+"description": "(C): A porosity quality inhering in a bearer by virtue of the bearer's being capable of admitting the passage of gas or liquid through pores or interstices.",
 "iri": "http://purl.obolibrary.org/obo/PATO_0000984",
 "label_4_translation": ["pato-porous"],
 "label_original": "porous",
@@ -3405,12 +3405,12 @@
 "type": "C"
 },
 "(C) pato-0000150": {
-"prefix": ["pato-0000150"],
-"body": ["pato-0000150"],
-"description": "(C): ",
+"prefix": ["pato-texture"],
+"body": ["pato-texture"],
+"description": "(C): A morphologic quality inhering in a bearer by virtue of the bearer's relative size, organization and distribution of its surface elements or the representation or invention of the appearance of its surface; visual and tactile surface characteristics.",
 "iri": "http://purl.obolibrary.org/obo/PATO_0000150",
-"label_4_translation": ["pato-0000150"],
-"label_original": "0000150",
+"label_4_translation": ["pato-texture"],
+"label_original": "texture",
 "type": "C"
 },
 "(C) aism-0000354": {
@@ -3756,12 +3756,12 @@
 "type": "C"
 },
 "(C) pato-0000040": {
-"prefix": ["pato-0000040"],
-"body": ["pato-0000040"],
-"description": "(C): ",
+"prefix": ["pato-distance"],
+"body": ["pato-distance"],
+"description": "(C): A quality that is the extent of space between two entities.",
 "iri": "http://purl.obolibrary.org/obo/PATO_0000040",
-"label_4_translation": ["pato-0000040"],
-"label_original": "0000040",
+"label_4_translation": ["pato-distance"],
+"label_original": "distance",
 "type": "C"
 },
 "(C) aism-0004097": {
@@ -5448,12 +5448,12 @@
 "type": "C"
 },
 "(C) pato-0001977": {
-"prefix": ["pato-0001977"],
-"body": ["pato-0001977"],
-"description": "(C): ",
+"prefix": ["pato-angular"],
+"body": ["pato-angular"],
+"description": "(C): A shape quality inhering in a bearer by virtue of the bearer's having at least one salient angle on the margin.",
 "iri": "http://purl.obolibrary.org/obo/PATO_0001977",
-"label_4_translation": ["pato-0001977"],
-"label_original": "0001977",
+"label_4_translation": ["pato-angular"],
+"label_original": "angular",
 "type": "C"
 },
 "(C) aism-0000630": {
@@ -5484,12 +5484,12 @@
 "type": "C"
 },
 "(C) pato-0001495": {
-"prefix": ["pato-0001495"],
-"body": ["pato-0001495"],
-"description": "(C): ",
+"prefix": ["pato-notched"],
+"body": ["pato-notched"],
+"description": "(C): A concave quality inhering in a bearer by virtue of the bearer's shape being a V-shaped cut.",
 "iri": "http://purl.obolibrary.org/obo/PATO_0001495",
-"label_4_translation": ["pato-0001495"],
-"label_original": "0001495",
+"label_4_translation": ["pato-notched"],
+"label_original": "notched",
 "type": "C"
 },
 "(C) aism-0000633": {
@@ -5519,13 +5519,202 @@
 "label_original": "component density",
 "type": "C"
 },
-"(C) pato-0103000": {
-"prefix": ["pato-0103000"],
-"body": ["pato-0103000"],
-"description": "(C): ",
-"iri": "http://purl.obolibrary.org/obo/PATO_0103000",
-"label_4_translation": ["pato-0103000"],
-"label_original": "0103000",
+"(C) aism-0000636": {
+"prefix": ["aism-serial_position_quality"],
+"body": ["aism-serial_position_quality"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity's position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000636",
+"label_4_translation": ["aism-serial_position_quality"],
+"label_original": "serial position quality",
+"type": "C"
+},
+"(C) aism-0000638": {
+"prefix": ["aism-serial_position_id_1"],
+"body": ["aism-serial_position_id_1"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 1st position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000638",
+"label_4_translation": ["aism-serial_position_id_1"],
+"label_original": "serial position id 1",
+"type": "C"
+},
+"(C) aism-0000639": {
+"prefix": ["aism-serial_position_id_2"],
+"body": ["aism-serial_position_id_2"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 2nd position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000639",
+"label_4_translation": ["aism-serial_position_id_2"],
+"label_original": "serial position id 2",
+"type": "C"
+},
+"(C) aism-0000640": {
+"prefix": ["aism-serial_position_id_3"],
+"body": ["aism-serial_position_id_3"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 3rd position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000640",
+"label_4_translation": ["aism-serial_position_id_3"],
+"label_original": "serial position id 3",
+"type": "C"
+},
+"(C) aism-0000641": {
+"prefix": ["aism-serial_position_id_4"],
+"body": ["aism-serial_position_id_4"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 4th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000641",
+"label_4_translation": ["aism-serial_position_id_4"],
+"label_original": "serial position id 4",
+"type": "C"
+},
+"(C) aism-0000642": {
+"prefix": ["aism-serial_position_id_5"],
+"body": ["aism-serial_position_id_5"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 5th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000642",
+"label_4_translation": ["aism-serial_position_id_5"],
+"label_original": "serial position id 5",
+"type": "C"
+},
+"(C) aism-0000643": {
+"prefix": ["aism-serial_position_id_6"],
+"body": ["aism-serial_position_id_6"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 6th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000643",
+"label_4_translation": ["aism-serial_position_id_6"],
+"label_original": "serial position id 6",
+"type": "C"
+},
+"(C) aism-0000644": {
+"prefix": ["aism-serial_position_id_7"],
+"body": ["aism-serial_position_id_7"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 7th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000644",
+"label_4_translation": ["aism-serial_position_id_7"],
+"label_original": "serial position id 7",
+"type": "C"
+},
+"(C) aism-0000645": {
+"prefix": ["aism-serial_position_id_8"],
+"body": ["aism-serial_position_id_8"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 8th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000645",
+"label_4_translation": ["aism-serial_position_id_8"],
+"label_original": "serial position id 8",
+"type": "C"
+},
+"(C) aism-0000646": {
+"prefix": ["aism-serial_position_id_9"],
+"body": ["aism-serial_position_id_9"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 9th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000646",
+"label_4_translation": ["aism-serial_position_id_9"],
+"label_original": "serial position id 9",
+"type": "C"
+},
+"(C) aism-0000647": {
+"prefix": ["aism-serial_position_id_10"],
+"body": ["aism-serial_position_id_10"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 10th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000647",
+"label_4_translation": ["aism-serial_position_id_10"],
+"label_original": "serial position id 10",
+"type": "C"
+},
+"(C) aism-0000648": {
+"prefix": ["aism-serial_position_id_11"],
+"body": ["aism-serial_position_id_11"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 11th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000648",
+"label_4_translation": ["aism-serial_position_id_11"],
+"label_original": "serial position id 11",
+"type": "C"
+},
+"(C) aism-0000649": {
+"prefix": ["aism-serial_position_id_12"],
+"body": ["aism-serial_position_id_12"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 12th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000649",
+"label_4_translation": ["aism-serial_position_id_12"],
+"label_original": "serial position id 12",
+"type": "C"
+},
+"(C) aism-0000650": {
+"prefix": ["aism-serial_position_id_13"],
+"body": ["aism-serial_position_id_13"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 13th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000650",
+"label_4_translation": ["aism-serial_position_id_13"],
+"label_original": "serial position id 13",
+"type": "C"
+},
+"(C) aism-0000651": {
+"prefix": ["aism-serial_position_id_14"],
+"body": ["aism-serial_position_id_14"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 14th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000651",
+"label_4_translation": ["aism-serial_position_id_14"],
+"label_original": "serial position id 14",
+"type": "C"
+},
+"(C) aism-0000652": {
+"prefix": ["aism-serial_position_id_15"],
+"body": ["aism-serial_position_id_15"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 15th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000652",
+"label_4_translation": ["aism-serial_position_id_15"],
+"label_original": "serial position id 15",
+"type": "C"
+},
+"(C) aism-0000653": {
+"prefix": ["aism-serial_position_id_16"],
+"body": ["aism-serial_position_id_16"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 16th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000653",
+"label_4_translation": ["aism-serial_position_id_16"],
+"label_original": "serial position id 16",
+"type": "C"
+},
+"(C) aism-0000654": {
+"prefix": ["aism-serial_position_id_17"],
+"body": ["aism-serial_position_id_17"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 17th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000654",
+"label_4_translation": ["aism-serial_position_id_17"],
+"label_original": "serial position id 17",
+"type": "C"
+},
+"(C) aism-0000655": {
+"prefix": ["aism-serial_position_id_18"],
+"body": ["aism-serial_position_id_18"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 18th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000655",
+"label_4_translation": ["aism-serial_position_id_18"],
+"label_original": "serial position id 18",
+"type": "C"
+},
+"(C) aism-0000656": {
+"prefix": ["aism-serial_position_id_19"],
+"body": ["aism-serial_position_id_19"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 19th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000656",
+"label_4_translation": ["aism-serial_position_id_19"],
+"label_original": "serial position id 19",
+"type": "C"
+},
+"(C) aism-0000657": {
+"prefix": ["aism-serial_position_id_20"],
+"body": ["aism-serial_position_id_20"],
+"description": "(C): A relational quality inhering in an entity by virtue of the entity occupying the 20th position within a repeated series of similar entities.",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000657",
+"label_4_translation": ["aism-serial_position_id_20"],
+"label_original": "serial position id 20",
+"type": "C"
+},
+"(C) aism-0000658": {
+"prefix": ["aism-anatomical_angle"],
+"body": ["aism-anatomical_angle"],
+"description": "(C): A region of cuticle with an angular shape formed at the junction of two margins of an anatomical structure (e.g., frontal angle of pronotum).",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000658",
+"label_4_translation": ["aism-anatomical_angle"],
+"label_original": "anatomical angle",
 "type": "C"
 },
 "(C) aism-0002002": {
@@ -6098,7 +6287,7 @@
 "(C) pato-0002219": {
 "prefix": ["pato-fan-shaped"],
 "body": ["pato-fan-shaped"],
-"description": "(C): ",
+"description": "(C): A quality inhering in a bearer that is shaped in the form of a fan.",
 "iri": "http://purl.obolibrary.org/obo/PATO_0002219",
 "label_4_translation": ["pato-fan-shaped"],
 "label_original": "fan-shaped",
@@ -6546,12 +6735,12 @@
 "type": "C"
 },
 "(C) uberon-0000018": {
-"prefix": ["uberon-0000018"],
-"body": ["uberon-0000018"],
-"description": "(C): ",
+"prefix": ["uberon-compound_eye"],
+"body": ["uberon-compound_eye"],
+"description": "(C): A light sensing organ composed of ommatidia.",
 "iri": "http://purl.obolibrary.org/obo/UBERON_0000018",
-"label_4_translation": ["uberon-0000018"],
-"label_original": "0000018",
+"label_4_translation": ["uberon-compound_eye"],
+"label_original": "compound eye",
 "type": "C"
 },
 "(C) aism-0004053": {
@@ -8310,12 +8499,12 @@
 "type": "C"
 },
 "(C) uberon-0002536": {
-"prefix": ["uberon-0002536"],
-"body": ["uberon-0002536"],
-"description": "(C): ",
+"prefix": ["uberon-arthropod_sensillum"],
+"body": ["uberon-arthropod_sensillum"],
+"description": "(C): Sense organ embedded in the integument and consisting of one or a cluster of sensory neurons and associated sensory structures, support cells and glial cells forming a single organised unit with a largely bona-fide boundary.[FBbt].",
 "iri": "http://purl.obolibrary.org/obo/UBERON_0002536",
-"label_4_translation": ["uberon-0002536"],
-"label_original": "0002536",
+"label_4_translation": ["uberon-arthropod_sensillum"],
+"label_original": "arthropod sensillum",
 "type": "C"
 },
 "(C) aism-0004305": {
@@ -8514,15 +8703,6 @@
 "iri": "http://purl.obolibrary.org/obo/NCBITaxon_33392",
 "label_4_translation": ["ncbi-33392"],
 "label_original": "33392",
-"type": "C"
-},
-"(C) ncbi-50557": {
-"prefix": ["ncbi-50557"],
-"body": ["ncbi-50557"],
-"description": "(C): ",
-"iri": "http://purl.obolibrary.org/obo/NCBITaxon_50557",
-"label_4_translation": ["ncbi-50557"],
-"label_original": "50557",
 "type": "C"
 },
 "(C) obi-0000679": {
@@ -8724,12 +8904,12 @@
 "type": "C"
 },
 "(C) uberon-0000990": {
-"prefix": ["uberon-0000990"],
-"body": ["uberon-0000990"],
-"description": "(C): ",
+"prefix": ["uberon-reproductive_system"],
+"body": ["uberon-reproductive_system"],
+"description": "(C): Anatomical system that has as its parts the organs concerned with reproduction.",
 "iri": "http://purl.obolibrary.org/obo/UBERON_0000990",
-"label_4_translation": ["uberon-0000990"],
-"label_original": "0000990",
+"label_4_translation": ["uberon-reproductive_system"],
+"label_original": "reproductive system",
 "type": "C"
 },
 "(C) uberon-0001134": {
@@ -8769,18 +8949,18 @@
 "type": "C"
 },
 "(C) uberon-0004176": {
-"prefix": ["uberon-0004176"],
-"body": ["uberon-0004176"],
-"description": "(C): ",
+"prefix": ["uberon-external_genitalia"],
+"body": ["uberon-external_genitalia"],
+"description": "(C): The external genitalia are the outer sex organs, such as the penis or vulva in mammals.",
 "iri": "http://purl.obolibrary.org/obo/UBERON_0004176",
-"label_4_translation": ["uberon-0004176"],
-"label_original": "0004176",
+"label_4_translation": ["uberon-external_genitalia"],
+"label_original": "external genitalia",
 "type": "C"
 },
 "(C) uberon-0004175": {
 "prefix": ["uberon-internal_genitalia"],
 "body": ["uberon-internal_genitalia"],
-"description": "(C): ",
+"description": "(C): The internal genitalia are the internal sex organs such as the uterine tube, the uterus and the vagina in female mammals, and the testis, seminal vesicle, ejaculatory duct and prostate in male mammals.",
 "iri": "http://purl.obolibrary.org/obo/UBERON_0004175",
 "label_4_translation": ["uberon-internal_genitalia"],
 "label_original": "internal genitalia",
@@ -9050,7 +9230,7 @@
 "(OP) ro-0002351": {
 "prefix": [".ro-has_member"],
 "body": [".ro-has_member"],
-"description": "(OP): ",
+"description": "(OP): has member is a mereological relation between a collection and an item.",
 "iri": "http://purl.obolibrary.org/obo/RO_0002351",
 "label_4_translation": ["ro-has_member"],
 "label_original": "has member",
@@ -9059,7 +9239,7 @@
 "(OP) ro-0002371": {
 "prefix": [".ro-attaches_to"],
 "body": [".ro-attaches_to"],
-"description": "(OP): ",
+"description": "(OP): a is attached to b if and only if a and b are discrete objects or object parts, and there are physical connections between a and b such that a force pulling a will move b, or a force pulling b will move a",
 "iri": "http://purl.obolibrary.org/obo/RO_0002371",
 "label_4_translation": ["ro-attaches_to"],
 "label_original": "attaches_to",
@@ -9068,28 +9248,28 @@
 "(OP) ro-0002372": {
 "prefix": [".ro-has_muscle_origin"],
 "body": [".ro-has_muscle_origin"],
-"description": "(OP): ",
+"description": "(OP): m has_muscle_origin s iff m is attached_to s, and it is the case that when m contracts, s does not move. The site of the origin tends to be more proximal and have greater mass than what the other end attaches to.",
 "iri": "http://purl.obolibrary.org/obo/RO_0002372",
 "label_4_translation": ["ro-has_muscle_origin"],
 "label_original": "has muscle origin",
 "type": "OP"
 },
 "(OP) ro-0015007": {
-"prefix": [".ro-0015007"],
-"body": [".ro-0015007"],
-"description": "(OP): ",
+"prefix": [".ro-increased_in_magnitude_relative_to"],
+"body": [".ro-increased_in_magnitude_relative_to"],
+"description": "(OP): q1 increased_in_magnitude_relative_to q2 if and only if magnitude(q1) > magnitude(q2). Here, magnitude(q) is a function that maps a quality to a unit-invariant scale.",
 "iri": "http://purl.obolibrary.org/obo/RO_0015007",
-"label_4_translation": ["ro-0015007"],
-"label_original": "0015007",
+"label_4_translation": ["ro-increased_in_magnitude_relative_to"],
+"label_original": "increased in magnitude relative to",
 "type": "OP"
 },
 "(OP) ro-0015008": {
-"prefix": [".ro-0015008"],
-"body": [".ro-0015008"],
-"description": "(OP): ",
+"prefix": [".ro-decreased_in_magnitude_relative_to"],
+"body": [".ro-decreased_in_magnitude_relative_to"],
+"description": "(OP): q1 decreased_in_magnitude_relative_to q2 if and only if magnitude(q1) < magnitude(q2). Here, magnitude(q) is a function that maps a quality to a unit-invariant scale.",
 "iri": "http://purl.obolibrary.org/obo/RO_0015008",
-"label_4_translation": ["ro-0015008"],
-"label_original": "0015008",
+"label_4_translation": ["ro-decreased_in_magnitude_relative_to"],
+"label_original": "decreased in magnitude relative to",
 "type": "OP"
 },
 "(OP) pato2-decreased_in_magnitude_relative_to": {
@@ -9200,6 +9380,15 @@
 "label_original": "sensu",
 "type": "AP"
 },
+"(AP) aism-0000637": {
+"prefix": [".aism-serial_position_notation"],
+"body": [".aism-serial_position_notation"],
+"description": "(AP): ",
+"iri": "http://purl.obolibrary.org/obo/AISM_0000637",
+"label_4_translation": ["aism-serial_position_notation"],
+"label_original": "serial position notation",
+"type": "AP"
+},
 "(AP) iao-0000118": {
 "prefix": [".iao-alternative_label"],
 "body": [".iao-alternative_label"],
@@ -9273,12 +9462,12 @@
 "type": "AP"
 },
 "(AP) formats-inSubset": {
-"prefix": [".formats-inSubset"],
-"body": [".formats-inSubset"],
+"prefix": [".formats-in_subset"],
+"body": [".formats-in_subset"],
 "description": "(AP): ",
 "iri": "http://www.geneontology.org/formats/oboInOwl#inSubset",
-"label_4_translation": ["formats-inSubset"],
-"label_original": "inSubset",
+"label_4_translation": ["formats-in_subset"],
+"label_original": "in_subset",
 "type": "AP"
 },
 "(C) bspo-0000070": {
@@ -9353,6 +9542,15 @@
 "label_original": "anatomical line",
 "type": "C"
 },
+"(C) pato-0000001": {
+"prefix": ["pato-quality"],
+"body": ["pato-quality"],
+"description": "(C): A dependent entity that inheres in a bearer by virtue of how the bearer is related to other entities",
+"iri": "http://purl.obolibrary.org/obo/PATO_0000001",
+"label_4_translation": ["pato-quality"],
+"label_original": "quality",
+"type": "C"
+},
 "(C) bspo-0000016": {
 "prefix": ["bspo-dorsal-ventral_axis"],
 "body": ["bspo-dorsal-ventral_axis"],
@@ -9416,15 +9614,6 @@
 "label_original": "postero-lateral margin",
 "type": "C"
 },
-"(C) pato-0000001": {
-"prefix": ["pato-quality"],
-"body": ["pato-quality"],
-"description": "(C): A dependent entity that inheres in a bearer by virtue of how the bearer is related to other entities",
-"iri": "http://purl.obolibrary.org/obo/PATO_0000001",
-"label_4_translation": ["pato-quality"],
-"label_original": "quality",
-"type": "C"
-},
 "(C) uberon-0001062": {
 "prefix": ["uberon-anatomical_entity"],
 "body": ["uberon-anatomical_entity"],
@@ -9432,6 +9621,42 @@
 "iri": "http://purl.obolibrary.org/obo/UBERON_0001062",
 "label_4_translation": ["uberon-anatomical_entity"],
 "label_original": "anatomical entity",
+"type": "C"
+},
+"(C) pato-0000413": {
+"prefix": ["pato-square"],
+"body": ["pato-square"],
+"description": "(C): A shape quality inhering in a bearer by virtue of the bearer's having an equal-sided rectangular form.",
+"iri": "http://purl.obolibrary.org/obo/PATO_0000413",
+"label_4_translation": ["pato-square"],
+"label_original": "square",
+"type": "C"
+},
+"(C) pato-0002112": {
+"prefix": ["pato-perforate"],
+"body": ["pato-perforate"],
+"description": "(C): A structural quality inhering in a bearer by virtue of the bearer's having a hole or holes, especially a row or array of small holes.",
+"iri": "http://purl.obolibrary.org/obo/PATO_0002112",
+"label_4_translation": ["pato-perforate"],
+"label_original": "perforate",
+"type": "C"
+},
+"(C) pato-0002227": {
+"prefix": ["pato-cup-shaped"],
+"body": ["pato-cup-shaped"],
+"description": "(C): A concave 3-D shape quality inhering in a bearer by virtue of the bearer's shape form resembling the shape of a cup.",
+"iri": "http://purl.obolibrary.org/obo/PATO_0002227",
+"label_4_translation": ["pato-cup-shaped"],
+"label_original": "cup-shaped",
+"type": "C"
+},
+"(C) pato-0002425": {
+"prefix": ["pato-exposed"],
+"body": ["pato-exposed"],
+"description": "(C): Open to view or not covered by another entity.",
+"iri": "http://purl.obolibrary.org/obo/PATO_0002425",
+"label_4_translation": ["pato-exposed"],
+"label_original": "exposed",
 "type": "C"
 },
 "(C) bspo-0000073": {
@@ -10217,15 +10442,6 @@
 "label_original": "cupule",
 "type": "C"
 },
-"(C) pato-0002227": {
-"prefix": ["pato-cup-shaped"],
-"body": ["pato-cup-shaped"],
-"description": "(C): A concave 3-D shape quality inhering in a bearer by virtue of the bearer's shape form resembling the shape of a cup. [database_cross_reference: url:http://www.thefreedictionary.com/cup-shaped]",
-"iri": "http://purl.obolibrary.org/obo/PATO_0002227",
-"label_4_translation": ["pato-cup-shaped"],
-"label_original": "cup-shaped",
-"type": "C"
-},
 "(C) colao-0000086": {
 "prefix": ["colao-mala"],
 "body": ["colao-mala"],
@@ -10278,15 +10494,6 @@
 "iri": "http://purl.obolibrary.org/obo/COLAO_0000091",
 "label_4_translation": ["colao-elytral_window_puncture"],
 "label_original": "elytral window puncture",
-"type": "C"
-},
-"(C) pato-0000413": {
-"prefix": ["pato-square"],
-"body": ["pato-square"],
-"description": "(C): A shape quality inhering in a bearer by virtue of the bearer's having an equal-sided rectangular form. [database_cross_reference: answers.com:answers.com]",
-"iri": "http://purl.obolibrary.org/obo/PATO_0000413",
-"label_4_translation": ["pato-square"],
-"label_original": "square",
 "type": "C"
 },
 "(C) colao-0000092": {
@@ -10748,15 +10955,6 @@
 "label_original": "abdominal ventrite",
 "type": "C"
 },
-"(C) pato-0002425": {
-"prefix": ["pato-exposed"],
-"body": ["pato-exposed"],
-"description": "(C): Open to view or not covered by another entity. [database_cross_reference: PATOC:WD]",
-"iri": "http://purl.obolibrary.org/obo/PATO_0002425",
-"label_4_translation": ["pato-exposed"],
-"label_original": "exposed",
-"type": "C"
-},
 "(C) colao-0000143": {
 "prefix": ["colao-antennal_sensorium"],
 "body": ["colao-antennal_sensorium"],
@@ -10854,15 +11052,6 @@
 "iri": "http://purl.obolibrary.org/obo/COLAO_0000153",
 "label_4_translation": ["colao-spiracular_scar"],
 "label_original": "spiracular scar",
-"type": "C"
-},
-"(C) pato-0002112": {
-"prefix": ["pato-perforate"],
-"body": ["pato-perforate"],
-"description": "(C): A structural quality inhering in a bearer by virtue of the bearer's having a hole or holes, especially a row or array of small holes. [database_cross_reference: answers.com:answers.com]",
-"iri": "http://purl.obolibrary.org/obo/PATO_0002112",
-"label_4_translation": ["pato-perforate"],
-"label_original": "perforate",
 "type": "C"
 },
 "(C) colao-0000154": {
@@ -11420,7 +11609,7 @@
 "description": "(AP): ",
 "iri": "http://www.geneontology.org/formats/oboInOwl#creation_date",
 "label_4_translation": ["formats-creation_date"],
-"label_original": "creation_date",
+"label_original": "creation date",
 "type": "AP"
 },
 "(AP) formats-source": {
@@ -11433,12 +11622,12 @@
 "type": "AP"
 },
 "(AP) formats-hasAlternativeId": {
-"prefix": [".formats-hasAlternativeId"],
-"body": [".formats-hasAlternativeId"],
+"prefix": [".formats-has_alternative_id"],
+"body": [".formats-has_alternative_id"],
 "description": "(AP): ",
 "iri": "http://www.geneontology.org/formats/oboInOwl#hasAlternativeId",
-"label_4_translation": ["formats-hasAlternativeId"],
-"label_original": "hasAlternativeId",
+"label_4_translation": ["formats-has_alternative_id"],
+"label_original": "has_alternative_id",
 "type": "AP"
 },
 "(AP) formats-taxon": {
@@ -11559,12 +11748,12 @@
 "type": "AP"
 },
 "(AP) formats-hasOBONamespace": {
-"prefix": [".formats-hasOBONamespace"],
-"body": [".formats-hasOBONamespace"],
+"prefix": [".formats-has_obo_namespace"],
+"body": [".formats-has_obo_namespace"],
 "description": "(AP): ",
 "iri": "http://www.geneontology.org/formats/oboInOwl#hasOBONamespace",
-"label_4_translation": ["formats-hasOBONamespace"],
-"label_original": "hasOBONamespace",
+"label_4_translation": ["formats-has_obo_namespace"],
+"label_original": "has_obo_namespace",
 "type": "AP"
 },
 "(AP) formats-created_by": {
@@ -11573,7 +11762,7 @@
 "description": "(AP): ",
 "iri": "http://www.geneontology.org/formats/oboInOwl#created_by",
 "label_4_translation": ["formats-created_by"],
-"label_original": "created_by",
+"label_original": "created by",
 "type": "AP"
 },
 "(AP) iao-0000111": {
@@ -11783,6 +11972,15 @@
 "label_original": "linear",
 "type": "C"
 },
+"(C) pato-0103000": {
+"prefix": ["pato-quantitative"],
+"body": ["pato-quantitative"],
+"description": "(C): A quality of an entity that can be represented numerically, including anything that can be counted, measured, or given a numerical value.",
+"iri": "http://purl.obolibrary.org/obo/PATO_0103000",
+"label_4_translation": ["pato-quantitative"],
+"label_original": "quantitative",
+"type": "C"
+},
 "(C) pato-0001591": {
 "prefix": ["pato-curvature"],
 "body": ["pato-curvature"],
@@ -11835,6 +12033,15 @@
 "iri": "http://purl.obolibrary.org/obo/UBERON_0000468",
 "label_4_translation": ["uberon-multicellular_organism"],
 "label_original": "multicellular organism",
+"type": "C"
+},
+"(C) ncbi-50557": {
+"prefix": ["ncbi-Insecta"],
+"body": ["ncbi-Insecta"],
+"description": "(C): ",
+"iri": "http://purl.obolibrary.org/obo/NCBITaxon_50557",
+"label_4_translation": ["ncbi-Insecta"],
+"label_original": "Insecta",
 "type": "C"
 },
 "(C) caro-0000000": {
