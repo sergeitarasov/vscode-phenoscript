@@ -1,21 +1,20 @@
 
-
-
 OTU = { #// OTUName:  Addd OTU/SPECIES NAME HERE
     DATA = {
-#>>>YAML specimen
-specimen:
-    id: grebennikovius_armiger
-    .rdfs-label: 'Grebennikovius armiger'
-    .ott_id: 'ott_id:3328193'
-    .gbif_id: 'https://www.gbif.org/species/1094062'
+
+#>>>YAML described_species
+described_species:
+    .id: genus_species
+    .rdfs-label: 'Genus species'
+    .gbif_id: 'https://www.gbif.org/species/GBIF_ID'
     .dwc-Catalog_Number:
-        - 'CNCCOLVG00001738'
+        - 'CATALOG_NUMBER'
     .is_a:
         - uberon-male_organism
         - uberon-adult_organism
-        - dwc-Preserved_Specimen  
+        - dwc-Preserved_Specimen
 #<<<YAML
+
 }
     TRAITS = {
 
@@ -24,6 +23,8 @@ this > aism-fore_leg:id-80ef54;
 this > aism-mid_leg:id-2c55e8;
 
 this > aism-insect_head > aism-antenna > aism-antennomere .phs-has_element_count 5;
+
+
 
 #>>>YAML absolute_measurement
 absolute_measurement:
@@ -44,6 +45,8 @@ relative_measurement:
     quality: pato-length
   value: 8.0
 #<<<YAML
+
+
     }
 
 }

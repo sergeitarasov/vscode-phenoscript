@@ -951,7 +951,6 @@ class PHSSidebarViewProvider {
 						await fs.promises.writeFile(tmpScript, scriptLines.join('\n') + '\n', { mode: 0o755 });
 
 						const materializeCommand =
-							envPrefix +
 							'docker run --rm' +
 							` -v "${toDockerPath(owlInitDir)}:/app/owl_init"` +
 							` -v "${toDockerPath(sourceOntologiesDir)}:/app/source_ontologies"` +
@@ -964,7 +963,11 @@ class PHSSidebarViewProvider {
 							' sergeit215/phenoscript-docker:latest' +
 							' /app/run.sh';
 
-						this._phenoscriptTerminal.sendText(materializeCommand);
+						// Write the docker command to a wrapper script to avoid terminal sendText length limits
+						const tmpDockerScript = path.join(os.tmpdir(), 'phs-materialize-docker.sh');
+						await fs.promises.writeFile(tmpDockerScript, `#!/bin/sh\n${materializeCommand}\n`, { mode: 0o755 });
+
+						this._phenoscriptTerminal.sendText(`${envPrefix}sh "${toDockerPath(tmpDockerScript)}"`);
 						vscode.window.showInformationMessage(`Materializing ${projectName}...`);
 					} catch (error) {
 						vscode.window.showErrorMessage(`Materialization failed: ${error.message}`);

@@ -52,7 +52,7 @@
       },
       {
         "command": "phenoscript.browseRdf",
-        "title": "PhenoScript: Browse with Sparklis"
+        "title": "Phenoscript: Browse with Sparklis"
       },
       {
         "command": "phenoscript.stopRdfBrowser",
