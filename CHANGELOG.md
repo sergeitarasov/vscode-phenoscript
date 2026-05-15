@@ -38,7 +38,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Cross-platform support: Windows (PowerShell and Git Bash), macOS, and Linux.
 
 
-## [0.0.25] - 2026-05-15
+## [0.0.26] - 2026-05-15
 
 ### Added
 
