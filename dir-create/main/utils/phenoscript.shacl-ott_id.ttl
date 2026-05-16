@@ -48,24 +48,24 @@ ps:TaxonomicUnitShape a sh:NodeShape ;
 
 ps:TaxonShape a sh:NodeShape ;
     sh:targetClass obo:TAXRANK_0000006 ; # species
-    # # sh:property [
-    # #     sh:path dwc:parentNameUsageID ;
-    # #     sh:minCount 0;
-    # #     sh:maxCount 1;
-    # #     sh:datatype xsd:anyURI
-    # # ] ;
     # sh:property [
-    #     sh:path dwc:taxonID ;
-    #     sh:minCount 2;
-    #     sh:maxCount 2;
-    #     sh:or (
-    #         [ sh:nodeKind sh:IRI ]
-    #         [ sh:datatype xsd:string ]
-    #         [ sh:datatype xsd:anyURI ]
-    #     ) ;
-    #     sh:qualifiedValueShape [
-    #         sh:datatype xsd:string ;
-    #         sh:pattern "^ott_id:"
-    #     ] ;
-    #     sh:qualifiedMinCount 1 ;
-    # ] .
+    #     sh:path dwc:parentNameUsageID ;
+    #     sh:minCount 0;
+    #     sh:maxCount 1;
+    #     sh:datatype xsd:anyURI
+    # ] ;
+    sh:property [
+        sh:path dwc:taxonID ;
+        sh:minCount 2;
+        sh:maxCount 2;
+        sh:or (
+            [ sh:nodeKind sh:IRI ]
+            [ sh:datatype xsd:string ]
+            [ sh:datatype xsd:anyURI ]
+        ) ;
+        sh:qualifiedValueShape [
+            sh:datatype xsd:string ;
+            sh:pattern "^ott_id:"
+        ] ;
+        sh:qualifiedMinCount 1 ;
+    ] .
