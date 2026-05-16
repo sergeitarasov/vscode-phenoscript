@@ -13,6 +13,56 @@ Phenoscript is a computer language designed for describing species using ontolog
 ## Features
 ![](https://raw.githubusercontent.com/sergeitarasov/vscode-phenoscript/main/example.png)
 
+## Sidebar Workflow (v0.0.27+)
+
+The sidebar guides you through three sequential steps:
+
+### Step 1 — Write & Convert
+
+With a `.yphs` file open and active in the editor:
+
+- **Convert to OWL + Text** — converts the file to OWL ontology and generates a natural-language description (HTML, Markdown, or both). Runs via Docker.
+- **Check Syntax** — validates the active `.yphs` file and reports issues in the Problems panel (no Docker needed).
+- **Text file format** — choose HTML, Markdown, or Both for the natural-language output.
+- **Add GBIF taxonomy** — enriches the output with GBIF taxonomic data.
+
+### Step 2 — Build Knowledge Base
+
+- **Get / Update Ontologies** — downloads the ontologies declared in `phs-config.yaml` and merges them into `source_ontologies/tbox.owl`. Runs via Docker.
+- **Make KB (OWL → KB)** — materialises the ABox, infers axioms using the Whelk reasoner, and produces `output/kb/<project>-kb.ttl`. Runs via Docker.
+
+### Step 3 — Submit *(experimental)*
+
+- **Prepare for Submission (experimental)** — checks SHACL validation logs and consistency, then zips `phenotypes/` into `submit/<project>.zip` ready for repository upload.
+
+---
+
+**Create New Project** — scaffolds a new PhenoScript project with the correct directory structure:
+```
+my_project/
+├── phenotypes/
+│   ├── phs-config.yaml   ← fill in your name, ORCID, and project title
+│   └── my_species.yphs   ← your phenotype description file
+├── source_ontologies/
+└── output/
+    ├── owl_init/          ← converted OWL files
+    ├── nl/                ← natural-language descriptions
+    ├── abox/              ← materialised ABox files
+    ├── kb/                ← final knowledge base
+    └── log-shacl/         ← SHACL validation logs
+```
+
+> **Prerequisite:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) must be installed and running for all Docker-based commands. The image `sergeit215/phenoscript-docker` is pulled automatically on first use.
+
+### Tips & Shortcuts
+
+| Feature | How to trigger |
+|---|---|
+| Term info lookup | Place cursor on term → **⇧⌘E** (Mac) / **Shift+Ctrl+E** (Win/Linux), or right-click → *PHS: Show term info* |
+| YPHS → PHS preview | Right-click a `.yphs` file → *YPHS → PHS (preview)* |
+| Browse with Sparklis | Right-click a `.ttl` or `.owl` file → *Browse with Sparklis* |
+
+
 ## Project Setup & OWL Conversion (v0.0.24+)
 
 The extension sidebar provides two commands:

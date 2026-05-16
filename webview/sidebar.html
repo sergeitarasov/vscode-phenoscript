@@ -1,124 +1,343 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        body { padding: 10px; }
-        button {
-            width: 100%;
-            margin: 5px 0;
-            padding: 8px;
-            background: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background: var(--vscode-button-hoverBackground);
-        }
-        .nl-format-box {
-            margin: 6px 0 2px 0;
-            padding: 7px 10px;
-            border: 1px solid var(--vscode-panel-border, #444);
-            border-radius: 3px;
-            font-size: 12px;
-            color: var(--vscode-foreground);
-        }
-        .nl-format-box .nl-label {
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 11px;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-        .nl-format-box label {
-            display: block;
-            margin: 3px 0;
-            cursor: pointer;
-        }
-        .nl-format-box input[type="radio"] {
-            margin-right: 6px;
-            cursor: pointer;
-        }
-        .nl-format-box input[type="checkbox"] {
-            margin-right: 6px;
-            cursor: pointer;
-        }
-        .nl-format-box .nl-divider {
-            border: none;
-            border-top: 1px solid var(--vscode-panel-border, #444);
-            margin: 6px 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      padding: 8px 10px 16px;
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size, 13px);
+      color: var(--vscode-foreground);
+      background: var(--vscode-sideBar-background);
+      margin: 0;
+    }
+
+    /* ── Docker banner ─────────────────────────── */
+    .docker-banner {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 5px 8px;
+      margin-bottom: 10px;
+      border-radius: 3px;
+      background: transparent;
+      border: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.3));
+      font-size: 11px;
+      color: var(--vscode-descriptionForeground);
+      line-height: 1.5;
+      opacity: 0.75;
+    }
+    .docker-banner a {
+      color: var(--vscode-textLink-foreground);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .docker-banner a:hover { text-decoration: underline; }
+
+    /* ── Step sections ─────────────────────────── */
+    .step-section {
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.3));
+    }
+    .step-section.no-divider {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 5px;
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+      font-size: 10px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      opacity: 0.65;
+    }
+
+    /* ── Buttons ───────────────────────────────── */
+    .btn-primary, .btn-secondary {
+      display: block;
+      width: 100%;
+      margin: 4px 0;
+      padding: 7px 10px;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      border-radius: 2px;
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size, 13px);
+    }
+    .btn-primary {
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+    }
+    .btn-primary:hover { background: var(--vscode-button-hoverBackground); }
+    .btn-secondary {
+      background: var(--vscode-button-secondaryBackground, rgba(128,128,128,0.22));
+      color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+      border: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.45));
+      border-left: 3px solid var(--vscode-button-background, #0078d4);
+      padding-left: 9px;
+    }
+    .btn-secondary:hover {
+      background: var(--vscode-button-secondaryHoverBackground, rgba(128,128,128,0.32));
+    }
+    /* inline blue check icon for secondary buttons */
+    .btn-secondary .btn-icon {
+      color: var(--vscode-button-background, #0078d4);
+      margin-right: 5px;
+      font-style: normal;
+    }
+    /* compact right-aligned primary button */
+    .btn-create {
+      display: inline-block;
+      width: auto;
+      margin: 4px 0;
+      padding: 5px 12px;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      border-radius: 2px;
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size, 13px);
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+      float: right;
+    }
+    .btn-create:hover { background: var(--vscode-button-hoverBackground); }
+    .btn-create-wrap { overflow: hidden; }
+
+    /* ── NL options box ────────────────────────── */
+    .options-box {
+      margin-top: 6px;
+      padding: 6px 9px 7px;
+      border: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.3));
+      border-radius: 3px;
+    }
+    .options-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.55;
+      margin-bottom: 5px;
+    }
+    .radio-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 2px;
+    }
+    .radio-row label, .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .options-divider {
+      border: none;
+      border-top: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.3));
+      margin: 5px 0;
+    }
+
+    /* ── Tips section ──────────────────────────── */
+    .tips-section {
+      margin-top: 10px;
+      border-radius: 3px;
+      border: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.3));
+      overflow: hidden;
+    }
+    .tips-section summary {
+      padding: 5px 9px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      opacity: 0.65;
+      user-select: none;
+      list-style: none;
+    }
+    .tips-section summary::-webkit-details-marker { display: none; }
+    .tips-section summary::before { content: '\25B6  '; font-size: 8px; }
+    .tips-section[open] summary::before { content: '\25BC  '; font-size: 8px; }
+
+    .tips-body { padding: 2px 9px 8px; }
+    .tip {
+      padding: 5px 0;
+      border-bottom: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.2));
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--vscode-descriptionForeground);
+    }
+    .tip:last-child { border-bottom: none; }
+    .tip b { color: var(--vscode-foreground); }
+    .tip a { color: var(--vscode-textLink-foreground); text-decoration: none; }
+    .tip a:hover { text-decoration: underline; }
+    kbd {
+      display: inline-block;
+      padding: 1px 4px;
+      border-radius: 3px;
+      border: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.4));
+      font-size: 10px;
+      font-family: var(--vscode-editor-font-family, monospace);
+      background: var(--vscode-editor-background);
+      white-space: nowrap;
+    }
+    code {
+      font-family: var(--vscode-editor-font-family, monospace);
+      font-size: 11px;
+      background: var(--vscode-editor-background);
+      padding: 0 3px;
+      border-radius: 2px;
+    }
+  </style>
 </head>
 <body>
-    <button id="createProject">Create Project</button>
-    <button id="getOntologies">Get / Update Ontologies</button>
-    <button id="checkSyntax">Check Syntax</button>
-    <button id="convertPhs">Convert to OWL + Text</button>
-    <button id="materialize">Materialize (ABox &#8594; KB)</button>
-    <button id="submit">Prepare for Submission</button>
 
-    <div class="nl-format-box">
-        <div class="nl-label">Natural language format</div>
+  <!-- Docker reminder -->
+  <div class="docker-banner">
+    &#x1F433; Docker must be installed and running for most features.
+    <a href="https://www.docker.com/get-started">Get Docker &#8599;</a>
+  </div>
+
+  <!-- Step 1 — Write & Convert -->
+  <div class="step-section">
+    <div class="step-header">
+      <span class="step-badge">1</span>
+      <span class="step-title">Write &amp; Convert</span>
+    </div>
+    <button id="convertPhs" class="btn-primary">Convert to OWL + Text</button>
+    <button id="checkSyntax" class="btn-secondary"><i class="btn-icon">&#x2714;&#xFE0E;</i>Check Syntax</button>
+    <div class="options-box">
+      <div class="options-label">Text file format</div>
+      <div class="radio-row">
         <label><input type="radio" name="nlFormat" value="html" checked> HTML</label>
         <label><input type="radio" name="nlFormat" value="md"> Markdown</label>
         <label><input type="radio" name="nlFormat" value="both"> Both</label>
-        <hr class="nl-divider">
-        <label><input type="checkbox" id="gbifFlag" checked> Add GBIF taxonomy</label>
+      </div>
+      <hr class="options-divider">
+      <label class="checkbox-label">
+        <input type="checkbox" id="gbifFlag" checked> Add GBIF taxonomy
+      </label>
     </div>
+  </div>
 
-    <script>
-        const vscode = acquireVsCodeApi();
+  <!-- Step 2 — Build Knowledge Base -->
+  <div class="step-section">
+    <div class="step-header">
+      <span class="step-badge">2</span>
+      <span class="step-title">Build Knowledge Base</span>
+    </div>
+    <button id="getOntologies" class="btn-primary">Get / Update Ontologies</button>
+    <button id="materialize" class="btn-primary">Make KB (OWL &#8594; KB)</button>
+  </div>
 
-        // Restore last chosen format and GBIF option from persisted webview state
-        const state = vscode.getState();
-        if (state && state.nlFormat) {
-            const saved = document.querySelector(`input[name="nlFormat"][value="${state.nlFormat}"]`);
-            if (saved) saved.checked = true;
-        }
-        if (state && state.gbif !== undefined) {
-            document.getElementById('gbifFlag').checked = state.gbif;
-        }
+  <!-- Step 3 — Submit -->
+  <div class="step-section">
+    <div class="step-header">
+      <span class="step-badge">3</span>
+      <span class="step-title">Submit</span>
+    </div>
+    <button id="submit" class="btn-primary">Prepare for Submission (experimental)</button>
+  </div>
 
-        function saveState() {
-            vscode.setState({
-                nlFormat: document.querySelector('input[name="nlFormat"]:checked').value,
-                gbif: document.getElementById('gbifFlag').checked,
-            });
-        }
+  <!-- Other -->
+  <div class="step-section no-divider btn-create-wrap">
+    <button id="createProject" class="btn-create">&#x2B; Create New Project</button>
+  </div>
 
-        // Persist selection whenever it changes
-        document.querySelectorAll('input[name="nlFormat"]').forEach(radio => {
-            radio.addEventListener('change', saveState);
-        });
-        document.getElementById('gbifFlag').addEventListener('change', saveState);
+  <!-- Tips -->
+  <details class="tips-section">
+    <summary>&#x1F4A1; Tips &amp; Shortcuts</summary>
+    <div class="tips-body">
+      <div class="tip">
+        <b>Browse with Sparklis:</b> Right-click a <code>.ttl</code> or <code>.owl</code>
+        file in Explorer &#8594; <em>Browse with Sparklis</em>
+      </div>
+      <div class="tip">
+        <b>Term info:</b> Place cursor on a term &#8594;
+        <kbd>&#x21E7;&#x2318;E</kbd> Mac /
+        <kbd>Shift+Ctrl+E</kbd> Win/Linux,
+        or right-click &#8594; <em>PHS: Show term info</em>
+      </div>
+      <div class="tip">
+        <b>YPHS &#8594; PHS preview:</b> Right-click a <code>.yphs</code>
+        file &#8594; <em>YPHS &#8594; PHS (preview)</em>
+      </div>
+    </div>
+  </details>
 
-        document.getElementById('createProject').addEventListener('click', () => {
-            vscode.postMessage({ command: 'createProject' });
-        });
+  <script>
+    const vscode = acquireVsCodeApi();
 
-        document.getElementById('getOntologies').addEventListener('click', () => {
-            vscode.postMessage({ command: 'getOntologies' });
-        });
+    // Restore persisted state
+    const state = vscode.getState();
+    if (state && state.nlFormat) {
+      const saved = document.querySelector(`input[name="nlFormat"][value="${state.nlFormat}"]`);
+      if (saved) saved.checked = true;
+    }
+    if (state && state.gbif !== undefined) {
+      document.getElementById('gbifFlag').checked = state.gbif;
+    }
 
-        document.getElementById('checkSyntax').addEventListener('click', () => {
-            vscode.postMessage({ command: 'checkSyntax' });
-        });
+    function saveState() {
+      vscode.setState({
+        nlFormat: document.querySelector('input[name="nlFormat"]:checked').value,
+        gbif: document.getElementById('gbifFlag').checked,
+      });
+    }
 
-        document.getElementById('materialize').addEventListener('click', () => {
-            vscode.postMessage({ command: 'materialize' });
-        });
+    document.querySelectorAll('input[name="nlFormat"]').forEach(r => r.addEventListener('change', saveState));
+    document.getElementById('gbifFlag').addEventListener('change', saveState);
 
-        document.getElementById('submit').addEventListener('click', () => {
-            vscode.postMessage({ command: 'submit' });
-        });
+    document.getElementById('convertPhs').addEventListener('click', () => {
+      const nlFormat = document.querySelector('input[name="nlFormat"]:checked').value;
+      const gbif = document.getElementById('gbifFlag').checked;
+      vscode.postMessage({ command: 'convertPhs', nlFormat, gbif });
+    });
 
-        document.getElementById('convertPhs').addEventListener('click', () => {
-            const nlFormat = document.querySelector('input[name="nlFormat"]:checked').value;
-            const gbif = document.getElementById('gbifFlag').checked;
-            vscode.postMessage({ command: 'convertPhs', nlFormat, gbif });
-        });
-    </script>
+    document.getElementById('checkSyntax').addEventListener('click', () => {
+      vscode.postMessage({ command: 'checkSyntax' });
+    });
+
+    document.getElementById('getOntologies').addEventListener('click', () => {
+      vscode.postMessage({ command: 'getOntologies' });
+    });
+
+    document.getElementById('materialize').addEventListener('click', () => {
+      vscode.postMessage({ command: 'materialize' });
+    });
+
+    document.getElementById('submit').addEventListener('click', () => {
+      vscode.postMessage({ command: 'submit' });
+    });
+
+    document.getElementById('createProject').addEventListener('click', () => {
+      vscode.postMessage({ command: 'createProject' });
+    });
+  </script>
 </body>
 </html>
