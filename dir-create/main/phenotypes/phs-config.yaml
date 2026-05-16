@@ -24,11 +24,13 @@ authors:
 # ADD a short title of your project
 project-title: "My PhenoScript Project"
 importOntologies:
-  - http://purl.obolibrary.org/obo/aism.owl
+  # - http://purl.obolibrary.org/obo/aism.owl
+  - https://raw.githubusercontent.com/sergeitarasov/phenoscript-workshop-incol-2026/refs/heads/main/make-snippets/owl-xml/aism-edit.owl
   - http://purl.obolibrary.org/obo/colao.owl
   - https://raw.githubusercontent.com/sergeitarasov/PhenoScript/main/phenospy_package/phenospy/package-data/phenoscript.owl
   - http://purl.obolibrary.org/obo/pato.owl
-  - http://purl.obolibrary.org/obo/bspo.owl
+  # - http://purl.obolibrary.org/obo/bspo.owl
+  - https://raw.githubusercontent.com/sergeitarasov/phenoscript-workshop-incol-2026/refs/heads/main/make-snippets/owl-xml/bspo-edit.owl
   - http://purl.obolibrary.org/obo/cdao.owl
   - http://purl.obolibrary.org/obo/iao.owl
   - http://purl.obolibrary.org/obo/ro.owl
