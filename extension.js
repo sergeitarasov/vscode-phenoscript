@@ -25,6 +25,36 @@ function findFreePort() {
 	});
 }
 
+/**
+ * Write a docker command to a temp launcher script and return the short shell
+ * invocation to send to the terminal.  This avoids hitting shell command-line
+ * length limits (cmd.exe: ~8191 chars) when paths are long.
+ *
+ * @param {string} dockerCmd  Full `docker run …` command (no env-prefix needed)
+ * @param {string} baseName   Base filename without extension, e.g. 'phs-convert-docker'
+ * @returns {Promise<string>} Short command to pass to terminal.sendText()
+ */
+async function writeDockerLaunchScript(dockerCmd, baseName) {
+	const isWindows = process.platform === 'win32';
+	const activeShell = vscode.env.shell || '';
+	const isWinGitBash = isWindows && /bash/i.test(activeShell);
+	const toDockerPath = (p) => p.split(path.sep).join('/');
+
+	if (isWindows && !isWinGitBash) {
+		// PowerShell or cmd.exe — write a .bat file
+		const scriptPath = path.join(os.tmpdir(), baseName + '.bat');
+		await fs.promises.writeFile(scriptPath, `@echo off\r\n${dockerCmd}\r\n`);
+		// Double outer quotes handle spaces in %TEMP% path under cmd.exe
+		return `cmd /c ""${scriptPath}""`;
+	} else {
+		// Mac / Linux / Windows Git Bash — write a .sh file
+		const scriptPath = path.join(os.tmpdir(), baseName + '.sh');
+		await fs.promises.writeFile(scriptPath, `#!/bin/sh\n${dockerCmd}\n`, { mode: 0o755 });
+		const envPrefix = isWinGitBash ? 'MSYS_NO_PATHCONV=1 ' : '';
+		return `${envPrefix}sh "${toDockerPath(scriptPath)}"`;
+	}
+}
+
 /** Poll until Fuseki answers or timeout (ms) */
 function waitForFuseki(port, timeout = 30000) {
 	return new Promise((resolve, reject) => {
@@ -725,13 +755,6 @@ class PHSSidebarViewProvider {
 						const toDockerPath = (p) => p.split(path.sep).join('/');
 
 						// On Windows with Git Bash, MSYS path conversion mangles container-side
-						// paths like :/app/input into Windows paths — disable it.
-						// PowerShell and CMD don't support inline env-var prefix, so only apply
-						// this when the active shell is bash on Windows.
-						const activeShell = vscode.env.shell || '';
-						const isWinGitBash = process.platform === 'win32' && /bash/i.test(activeShell);
-						const envPrefix = isWinGitBash ? 'MSYS_NO_PATHCONV=1 ' : '';
-
 						// Reuse or create terminal
 						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
 							this._phenoscriptTerminal = vscode.window.terminals.find(
@@ -749,7 +772,6 @@ class PHSSidebarViewProvider {
 						//   /app/utils     ← extension dir-create/main/utils/ (contains shacl shapes)
 						//   /app/log-shacl ← project output/log-shacl/ (receives shacl logs)
 						const dockerCommand =
-							envPrefix +
 							'docker run --rm' +
 							` -v "${toDockerPath(phenotypesDir)}:/app/input"` +
 							` -v "${toDockerPath(snippetsDir)}:/app/snippets"` +
@@ -762,7 +784,8 @@ class PHSSidebarViewProvider {
 							` -e GBIF_FLAG=${gbif ? '1' : '0'}` +
 							' sergeit215/phenoscript-docker:latest';
 
-						this._phenoscriptTerminal.sendText(dockerCommand);
+						const launchCmd = await writeDockerLaunchScript(dockerCommand, 'phs-convert-docker');
+						this._phenoscriptTerminal.sendText(launchCmd);
 						vscode.window.showInformationMessage(`Converting ${fileName} to OWL + natural language (${nlFormat})...`);
 					} catch (error) {
 						vscode.window.showErrorMessage(`Conversion failed: ${error.message}`);
@@ -835,9 +858,6 @@ class PHSSidebarViewProvider {
 						await fs.promises.mkdir(sourceOntologiesDir, { recursive: true });
 
 						const toDockerPath = (p) => p.split(path.sep).join('/');
-						const activeShell = vscode.env.shell || '';
-						const isWinGitBash = process.platform === 'win32' && /bash/i.test(activeShell);
-						const envPrefix = isWinGitBash ? 'MSYS_NO_PATHCONV=1 ' : '';
 
 						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
 							this._phenoscriptTerminal = vscode.window.terminals.find(
@@ -863,7 +883,6 @@ class PHSSidebarViewProvider {
 						].join('\n') + '\n', { mode: 0o755 });
 
 						const ontoDockerCommand =
-							envPrefix +
 							'docker run --rm' +
 							` -v "${toDockerPath(phenotypesDir)}:/app/input"` +
 							` -v "${toDockerPath(sourceOntologiesDir)}:/app/source_ontologies"` +
@@ -872,7 +891,8 @@ class PHSSidebarViewProvider {
 							' sergeit215/phenoscript-docker:latest' +
 							' /app/run.sh';
 
-						this._phenoscriptTerminal.sendText(ontoDockerCommand);
+						const launchCmd = await writeDockerLaunchScript(ontoDockerCommand, 'phs-get-ontos-docker');
+						this._phenoscriptTerminal.sendText(launchCmd);
 						vscode.window.showInformationMessage('Fetching and merging ontologies...');
 					} catch (error) {
 						vscode.window.showErrorMessage(`Failed to get ontologies: ${error.message}`);
@@ -920,9 +940,6 @@ class PHSSidebarViewProvider {
 						await fs.promises.mkdir(kbDir, { recursive: true });
 
 						const toDockerPath = (p) => p.split(path.sep).join('/');
-						const activeShell = vscode.env.shell || '';
-						const isWinGitBash = process.platform === 'win32' && /bash/i.test(activeShell);
-						const envPrefix = isWinGitBash ? 'MSYS_NO_PATHCONV=1 ' : '';
 
 						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
 							this._phenoscriptTerminal = vscode.window.terminals.find(
@@ -963,11 +980,8 @@ class PHSSidebarViewProvider {
 							' sergeit215/phenoscript-docker:latest' +
 							' /app/run.sh';
 
-						// Write the docker command to a wrapper script to avoid terminal sendText length limits
-						const tmpDockerScript = path.join(os.tmpdir(), 'phs-materialize-docker.sh');
-						await fs.promises.writeFile(tmpDockerScript, `#!/bin/sh\n${materializeCommand}\n`, { mode: 0o755 });
-
-						this._phenoscriptTerminal.sendText(`${envPrefix}sh "${toDockerPath(tmpDockerScript)}"`);
+						const launchCmd = await writeDockerLaunchScript(materializeCommand, 'phs-materialize-docker');
+						this._phenoscriptTerminal.sendText(launchCmd);
 						vscode.window.showInformationMessage(`Materializing ${projectName}...`);
 					} catch (error) {
 						vscode.window.showErrorMessage(`Materialization failed: ${error.message}`);
