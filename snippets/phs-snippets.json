@@ -226,15 +226,6 @@
 "label_4_translation": ["owl-Thing"],
 "label_original": "Thing",
 "type": "C"
-},
-"(C) uberon-0034926": {
-"prefix": ["uberon-anatomical_row"],
-"body": ["uberon-anatomical_row"],
-"description": "(C): An anatomical collection that is arranged in a line.",
-"iri": "http://purl.obolibrary.org/obo/UBERON_0034926",
-"label_4_translation": ["uberon-anatomical_row"],
-"label_original": "anatomical row",
-"type": "C"
 }
 ,"(C) def-Nothing": {
 "prefix": ["Nothing"],
@@ -2145,12 +2136,12 @@
 "type": "C"
 },
 "(C) uberon-6007289": {
-"prefix": ["uberon-tagmatic_subdivision_of_integument"],
-"body": ["uberon-tagmatic_subdivision_of_integument"],
+"prefix": ["uberon-6007289"],
+"body": ["uberon-6007289"],
 "description": "(C): Region of integument of a tagma.  http://flybase.org/cgi-bin/fbcvq.html?query=FBbt:00007289",
 "iri": "http://purl.obolibrary.org/obo/UBERON_6007289",
-"label_4_translation": ["uberon-tagmatic_subdivision_of_integument"],
-"label_original": "tagmatic subdivision of integument",
+"label_4_translation": ["uberon-6007289"],
+"label_original": "6007289",
 "type": "C"
 },
 "(C) aism-0000112": {
@@ -2622,21 +2613,21 @@
 "type": "C"
 },
 "(C) uberon-0001001": {
-"prefix": ["uberon-chitin-based_cuticle"],
-"body": ["uberon-chitin-based_cuticle"],
-"description": "(C): A cuticular covering that is composed primarily of chitin. The main structural component of arthropod cuticle is a polysaccharide, chitin, composed of N-acetylglucosamine units, together with proteins and lipids[WP].",
+"prefix": ["uberon-0001001"],
+"body": ["uberon-0001001"],
+"description": "(C): ",
 "iri": "http://purl.obolibrary.org/obo/UBERON_0001001",
-"label_4_translation": ["uberon-chitin-based_cuticle"],
-"label_original": "chitin-based cuticle",
+"label_4_translation": ["uberon-0001001"],
+"label_original": "0001001",
 "type": "C"
 },
 "(C) uberon-6007284": {
-"prefix": ["uberon-insect_region_of_integument"],
-"body": ["uberon-insect_region_of_integument"],
-"description": "(C): A region of cuticle and its underlying epidermis.",
+"prefix": ["uberon-6007284"],
+"body": ["uberon-6007284"],
+"description": "(C): ",
 "iri": "http://purl.obolibrary.org/obo/UBERON_6007284",
-"label_4_translation": ["uberon-insect_region_of_integument"],
-"label_original": "insect region of integument",
+"label_4_translation": ["uberon-6007284"],
+"label_original": "6007284",
 "type": "C"
 },
 "(C) uberon-0000161": {
@@ -2649,12 +2640,12 @@
 "type": "C"
 },
 "(C) uberon-0001002": {
-"prefix": ["uberon-cuticle"],
-"body": ["uberon-cuticle"],
-"description": "(C): tough but flexible, non-mineral outer coverings of an organism, or parts of an organism, that provide protection. Cuticles are non-homologous, differing in their origin, structure and chemical composition[WP].",
+"prefix": ["uberon-0001002"],
+"body": ["uberon-0001002"],
+"description": "(C): ",
 "iri": "http://purl.obolibrary.org/obo/UBERON_0001002",
-"label_4_translation": ["uberon-cuticle"],
-"label_original": "cuticle",
+"label_4_translation": ["uberon-0001002"],
+"label_original": "0001002",
 "type": "C"
 },
 "(C) aism-0000178": {
@@ -3873,12 +3864,12 @@
 "type": "C"
 },
 "(C) uberon-0034926": {
-"prefix": ["uberon-0034926"],
-"body": ["uberon-0034926"],
-"description": "(C): ",
+"prefix": ["uberon-anatomical_row"],
+"body": ["uberon-anatomical_row"],
+"description": "(C): An anatomical collection that is arranged in a line.",
 "iri": "http://purl.obolibrary.org/obo/UBERON_0034926",
-"label_4_translation": ["uberon-0034926"],
-"label_original": "0034926",
+"label_4_translation": ["uberon-anatomical_row"],
+"label_original": "anatomical row",
 "type": "C"
 },
 "(C) aism-0000385": {
@@ -74684,15 +74675,6 @@
 "label_original": "Drosophila melanogaster",
 "type": "C"
 },
-"(C) uberon-0007491": {
-"prefix": ["uberon-chitin-based_acellular_structure"],
-"body": ["uberon-chitin-based_acellular_structure"],
-"description": "(C): Acellular anatomical structure whose predominant constituent is chitin.",
-"iri": "http://purl.obolibrary.org/obo/UBERON_0007491",
-"label_4_translation": ["uberon-chitin-based_acellular_structure"],
-"label_original": "chitin-based acellular structure",
-"type": "C"
-},
 "(C) uberon-0035943": {
 "prefix": ["uberon-life_cycle_temporal_boundary"],
 "body": ["uberon-life_cycle_temporal_boundary"],
@@ -80559,6 +80541,15 @@
 "iri": "http://purl.obolibrary.org/obo/UBERON_0005352",
 "label_4_translation": ["uberon-spermatic_cord"],
 "label_original": "spermatic cord",
+"type": "C"
+},
+"(C) uberon-0007491": {
+"prefix": ["uberon-chitin-based_acellular_structure"],
+"body": ["uberon-chitin-based_acellular_structure"],
+"description": "(C): Acellular anatomical structure whose predominant constituent is chitin.",
+"iri": "http://purl.obolibrary.org/obo/UBERON_0007491",
+"label_4_translation": ["uberon-chitin-based_acellular_structure"],
+"label_original": "chitin-based acellular structure",
 "type": "C"
 },
 "(C) uberon-0004882": {
