@@ -1,52 +1,49 @@
 
-OTU = { #// OTUName:  Addd OTU/SPECIES NAME HERE
-    DATA = {
+OTU = { #// OTUName: Add OTU/SPECIES NAME HERE
 
-#>>>YAML described_species
-described_species:
-    .id: genus_species
-    .rdfs-label: 'Genus species'
-    .gbif_id: 'https://www.gbif.org/species/GBIF_ID'
-    .dwc-Catalog_Number:
-        - 'CATALOG_NUMBER'
-    .is_a:
-        - uberon-male_organism
-        - uberon-adult_organism
-        - dwc-Preserved_Specimen
-#<<<YAML
+	DATA = {
+    #>>>YAML described_species
+    described_species:
+        .id: genus_species
+        .rdfs-label: 'Genus species'
+        .gbif_id: 'https://www.gbif.org/species/GBIF_ID'
+        .dwc-Catalog_Number:
+            - 'CATALOG_NUMBER'
+        .is_a:
+            - uberon-male_organism
+            - uberon-adult_organism
+            - dwc-Preserved_Specimen
+    #<<<YAML
+	}
 
+	TRAITS = {
 
+	this > uberon-chitin-based_cuticle >> pato-red;
+	this > aism-insect_head > aism-antenna > aism-antennomere .phs-has_element_count 5;
+
+	this > aism-fore_leg:id-80ef54;
+
+    #>>>YAML absolute_measurement
+    absolute_measurement:
+        .measured_entity:  aism-fore_leg:id-80ef54
+        .measured_quality: pato-length
+        .value: 3.0
+        .unit: unit-millimeter
+    #<<<YAML
+
+	
+    this > aism-mid_leg:id-2c55e8;
+    
+    #>>>YAML relative_measurement
+    relative_measurement:
+        .measured_trait:
+            .entity: aism-fore_leg:id-80ef54
+            .quality: pato-length
+        .unit:
+            .entity: aism-mid_leg:id-2c55e8
+            .quality: pato-length
+        .value: 8.0
+    #<<<YAML
+
+	}
 }
-    TRAITS = {
-
-this > uberon-chitin-based_cuticle >> pato-red;
-this > aism-fore_leg:id-80ef54;
-this > aism-mid_leg:id-2c55e8;
-
-this > aism-insect_head > aism-antenna > aism-antennomere .phs-has_element_count 5;
-
-#>>>YAML absolute_measurement
-absolute_measurement:
-    .measured_entity:  aism-fore_leg:id-80ef54
-    .measured_quality: pato-length
-    .value: 3.0
-    .unit: unit-millimeter
-#<<<YAML
-
-
-#>>>YAML relative_measurement
-relative_measurement:
-  .measured_trait:
-    .entity: aism-fore_leg:id-80ef54
-    .quality: pato-length
-  .unit:
-    .entity: aism-mid_leg:id-2c55e8
-    .quality: pato-length
-  .value: 8.0
-#<<<YAML
-
-
-    }
-
-}
-

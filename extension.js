@@ -759,7 +759,7 @@ class PHSSidebarViewProvider {
 						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
 							this._phenoscriptTerminal = vscode.window.terminals.find(
 								(t) => t.name === 'PhenoScript'
-							) || vscode.window.createTerminal('PhenoScript');
+							) || vscode.window.createTerminal({ name: 'PhenoScript', cwd: os.homedir() });
 						}
 						this._phenoscriptTerminal.show();
 						this._phenoscriptTerminal.sendText('clear');
@@ -862,7 +862,7 @@ class PHSSidebarViewProvider {
 						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
 							this._phenoscriptTerminal = vscode.window.terminals.find(
 								(t) => t.name === 'PhenoScript'
-							) || vscode.window.createTerminal('PhenoScript');
+							) || vscode.window.createTerminal({ name: 'PhenoScript', cwd: os.homedir() });
 						}
 						this._phenoscriptTerminal.show();
 						this._phenoscriptTerminal.sendText('clear');
@@ -944,7 +944,7 @@ class PHSSidebarViewProvider {
 						if (!this._phenoscriptTerminal || this._phenoscriptTerminal.exitStatus !== undefined) {
 							this._phenoscriptTerminal = vscode.window.terminals.find(
 								(t) => t.name === 'PhenoScript'
-							) || vscode.window.createTerminal('PhenoScript');
+							) || vscode.window.createTerminal({ name: 'PhenoScript', cwd: os.homedir() });
 						}
 						this._phenoscriptTerminal.show();
 						this._phenoscriptTerminal.sendText('clear');
