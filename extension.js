@@ -40,16 +40,18 @@ async function writeDockerLaunchScript(dockerCmd, baseName) {
 	const isWinGitBash = isWindows && /bash/i.test(activeShell);
 	const toDockerPath = (p) => p.split(path.sep).join('/');
 
+	const pullCmd = 'docker pull sergeit215/phenoscript-docker:latest';
+
 	if (isWindows && !isWinGitBash) {
 		// PowerShell or cmd.exe — write a .bat file
 		const scriptPath = path.join(os.tmpdir(), baseName + '.bat');
-		await fs.promises.writeFile(scriptPath, `@echo off\r\n${dockerCmd}\r\n`);
+		await fs.promises.writeFile(scriptPath, `@echo off\r\n${pullCmd}\r\n${dockerCmd}\r\n`);
 		// Double outer quotes handle spaces in %TEMP% path under cmd.exe
 		return `cmd /c ""${scriptPath}""`;
 	} else {
 		// Mac / Linux / Windows Git Bash — write a .sh file
 		const scriptPath = path.join(os.tmpdir(), baseName + '.sh');
-		await fs.promises.writeFile(scriptPath, `#!/bin/sh\n${dockerCmd}\n`, { mode: 0o755 });
+		await fs.promises.writeFile(scriptPath, `#!/bin/sh\n${pullCmd}\n${dockerCmd}\n`, { mode: 0o755 });
 		const envPrefix = isWinGitBash ? 'MSYS_NO_PATHCONV=1 ' : '';
 		return `${envPrefix}sh "${toDockerPath(scriptPath)}"`;
 	}
