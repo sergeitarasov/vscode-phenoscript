@@ -763,6 +763,7 @@ class PHSSidebarViewProvider {
 						}
 						this._phenoscriptTerminal.show();
 						this._phenoscriptTerminal.sendText('clear');
+						this._phenoscriptTerminal.sendText('cd "$HOME"');
 
 						// Volume mounts:
 						//   /app/input     ← project phenotypes/ (contains .yphs + phs-config.yaml)
@@ -866,6 +867,7 @@ class PHSSidebarViewProvider {
 						}
 						this._phenoscriptTerminal.show();
 						this._phenoscriptTerminal.sendText('clear');
+						this._phenoscriptTerminal.sendText('cd "$HOME"');
 
 						// Commands run inside the container:
 						// Write pipeline to temp script — avoids inline quoting issues on all platforms
@@ -948,6 +950,7 @@ class PHSSidebarViewProvider {
 						}
 						this._phenoscriptTerminal.show();
 						this._phenoscriptTerminal.sendText('clear');
+						this._phenoscriptTerminal.sendText('cd "$HOME"');
 
 						// Write pipeline to a temp script to avoid terminal paste-length limits
 						const scriptLines = [
