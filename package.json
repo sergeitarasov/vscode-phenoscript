@@ -2,7 +2,7 @@
   "name": "phenoscript",
   "displayName": "Phenoscript",
   "description": "Syntax highlight for the Phenoscript language",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "publisher": "tarasov-lab",
   "license": "MIT",
   "engines": {
@@ -110,6 +110,11 @@
       "scopeName": "source.phs",
       "path": "./syntaxes/phs.tmLanguage.json"
     }],
+    "configurationDefaults": {
+      "[phs]": {
+        "editor.wordBasedSuggestions": "off"
+      }
+    },
     "themes": [
       {
         "label": "Phenoscript Dark",
