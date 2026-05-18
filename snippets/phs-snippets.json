@@ -11954,6 +11954,24 @@
 "label_original": "project_id",
 "type": "AP"
 },
+"(AP) phs-0000023": {
+"prefix": [".phs-represents_taxon"],
+"body": [".phs-represents_taxon"],
+"description": "(AP): ",
+"iri": "https://github.com/sergeitarasov/PhenoScript/PHS_0000023",
+"label_4_translation": ["phs-represents_taxon"],
+"label_original": "represents_taxon",
+"type": "AP"
+},
+"(AP) phs-0000024": {
+"prefix": [".phs-represents_specimen"],
+"body": [".phs-represents_specimen"],
+"description": "(AP): ",
+"iri": "https://github.com/sergeitarasov/PhenoScript/PHS_0000024",
+"label_4_translation": ["phs-represents_specimen"],
+"label_original": "represents_specimen",
+"type": "AP"
+},
 "(C) uberon-0000465": {
 "prefix": ["uberon-material_anatomical_entity"],
 "body": ["uberon-material_anatomical_entity"],

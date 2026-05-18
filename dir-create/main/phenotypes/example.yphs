@@ -18,7 +18,7 @@ OTU = { #// OTUName: Add OTU/SPECIES NAME HERE
 
 	TRAITS = {
 
-	this > uberon-chitin-based_cuticle >> pato-red;
+	this >> pato-red;
 	this > aism-insect_head > aism-antenna > aism-antennomere .phs-has_element_count 5;
 
 	this > aism-fore_leg:id-80ef54;

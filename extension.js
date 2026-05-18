@@ -665,7 +665,7 @@ class PHSSidebarViewProvider {
 								await fs.promises.mkdir(path.join(targetDir, "output", "kb"), { recursive: true });
 
 								// Copy only the required template files into phenotypes/
-								const templateFiles = ["phs-config.yaml", "my_species.yphs"];
+								const templateFiles = ["phs-config.yaml", "example.yphs"];
 								for (const file of templateFiles) {
 									await fs.promises.copyFile(
 										path.join(templateDir, "phenotypes", file),
