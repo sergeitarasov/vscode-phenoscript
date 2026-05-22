@@ -253,6 +253,7 @@
     </div>
     <button id="getOntologies" class="btn-primary">Get / Update Ontologies</button>
     <button id="materialize" class="btn-primary">Make KB (OWL &#8594; KB)</button>
+    <button id="debugKb" class="btn-secondary"><i class="btn-icon">&#x26A0;&#xFE0E;</i>Debug Graph</button>
   </div>
 
   <!-- Step 3 — Submit -->
@@ -329,6 +330,10 @@
 
     document.getElementById('materialize').addEventListener('click', () => {
       vscode.postMessage({ command: 'materialize' });
+    });
+
+    document.getElementById('debugKb').addEventListener('click', () => {
+      vscode.postMessage({ command: 'debugKb' });
     });
 
     document.getElementById('submit').addEventListener('click', () => {

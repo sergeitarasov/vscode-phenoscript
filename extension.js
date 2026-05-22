@@ -993,6 +993,138 @@ class PHSSidebarViewProvider {
 						console.error(error);
 					}
 					break;
+
+				case "debugKb":
+					try {
+						// Resolve project dir (same pattern as materialize)
+						let projectDir = null;
+						const activeEditor = vscode.window.activeTextEditor;
+						if (activeEditor) {
+							const dir = path.dirname(activeEditor.document.fileName);
+							if (fs.existsSync(path.join(dir, 'phs-config.yaml'))) {
+								projectDir = path.dirname(dir);
+							} else if (fs.existsSync(path.join(dir, 'phenotypes', 'phs-config.yaml'))) {
+								projectDir = dir;
+							}
+						}
+						if (!projectDir && vscode.workspace.workspaceFolders) {
+							for (const wf of vscode.workspace.workspaceFolders) {
+								if (fs.existsSync(path.join(wf.uri.fsPath, 'phenotypes', 'phs-config.yaml'))) {
+									projectDir = wf.uri.fsPath;
+									break;
+								}
+							}
+						}
+						if (!projectDir) {
+							vscode.window.showErrorMessage('No PhenoScript project found. Open a project folder first.');
+							break;
+						}
+
+						const projectName = path.basename(projectDir);
+						const kbDir       = path.join(projectDir, 'output', 'kb');
+						const kbFile      = path.join(kbDir, `${projectName}-kb.ttl`);
+						const tsvFile     = path.join(kbDir, `${projectName}-debug.tsv`);
+						const debugRqPath = path.join(this._extensionUri.fsPath, 'debug-phs', 'debug.rq');
+
+						this._outputChannel.clear();
+						this._outputChannel.show(true);
+
+						if (!fs.existsSync(kbFile)) {
+							this._outputChannel.appendLine('=== Checking Triples for Ontological Consistency ===');
+							this._outputChannel.appendLine('');
+							this._outputChannel.appendLine(`KB file not found: ${kbFile}`);
+							this._outputChannel.appendLine('First create the KB file with Make KB (OWL \u2192 KB).');
+							vscode.window.showWarningMessage('KB file not found. Run Make KB (OWL \u2192 KB) first.');
+							break;
+						}
+
+						vscode.window.showInformationMessage(`Running Debug Graph for ${projectName}\u2026`);
+
+						const isWindows    = process.platform === 'win32';
+						const isWinGitBash = isWindows && /bash/i.test(vscode.env.shell || '');
+						const toDockerPath = (p) => p.split(path.sep).join('/');
+
+						const dockerCmd =
+							(isWinGitBash ? 'MSYS_NO_PATHCONV=1 ' : '') +
+							'docker run --rm' +
+							' --entrypoint /opt/apache-jena-5.2.0/bin/arq' +
+							` -v "${toDockerPath(kbDir)}:/app/kb:ro"` +
+							` -v "${toDockerPath(debugRqPath)}:/app/debug.rq:ro"` +
+							' sergeit215/phenoscript-docker:latest' +
+							` --data "/app/kb/${projectName}-kb.ttl"` +
+							' --query /app/debug.rq' +
+							' --results TSV';
+
+						const execOpts = {
+							maxBuffer: 20 * 1024 * 1024,
+							...(isWinGitBash ? { env: { ...process.env, MSYS_NO_PATHCONV: '1' } } : {}),
+						};
+
+						const tsvContent = await new Promise((resolve, reject) => {
+							cp.exec(dockerCmd, execOpts, (err, stdout, stderr) => {
+								// arq exits 0 on success; stderr may have warnings — only fail if no stdout
+								if (err && !stdout) {
+									reject(new Error(stderr.trim() || err.message));
+								} else {
+									resolve(stdout);
+								}
+							});
+						});
+
+						// Save raw TSV
+						await fs.promises.writeFile(tsvFile, tsvContent, 'utf8');
+
+						// ── Parse TSV and format output ───────────────────────────────────
+						// Jena TSV: header line then data; string literals wrapped in "…"
+						const allLines = tsvContent.split(/\r?\n/).filter(l => l.trim());
+						const dataRows = allLines.slice(1)  // skip header
+							.map(line =>
+								line.split('\t').map(cell => cell.replace(/^"|"$/g, '').replace(/""/g, '"'))
+							)
+							.filter(row => row.length >= 2 && row[0]);
+
+						const out = this._outputChannel;
+						out.appendLine('=== Checking Triples for Ontological Consistency ===');
+						out.appendLine('');
+						out.appendLine(`KB file   : ${kbFile}`);
+						out.appendLine(`TSV saved : ${tsvFile}`);
+						out.appendLine('');
+						out.appendLine('Legend:');
+						out.appendLine('  IC  = Independent Continuant (e.g. anatomical entity, organism)');
+						out.appendLine('  SDC = Specifically Dependent Continuant (e.g. quality, disposition)');
+						// out.appendLine('  >>  = has_characteristic (RO:0000053)');
+						// out.appendLine('  <<  = inheres_in (RO:0000052)');
+						// out.appendLine('  >   = has_part (BFO:0000051)');
+						// out.appendLine('  <   = part_of (BFO:0000050)');
+						out.appendLine('');
+
+						if (dataRows.length === 0) {
+							out.appendLine('No forbidden patterns found. \u2713');
+							vscode.window.showInformationMessage('Debug Graph: no forbidden patterns found.');
+						} else {
+							out.appendLine('\u26A0  Note: triples below potentially make the ontology inconsistent.');
+							out.appendLine('   Consider revising them.');
+							out.appendLine('');
+							dataRows.forEach((row, i) => {
+								const [errorPattern, subjectLabel, propertyAlias, objectLabel, organism, authorName, authorORCID] = row;
+								out.appendLine(`[${i + 1}] ${errorPattern || ''}`);
+								out.appendLine(`  Triple   : ${subjectLabel || ''} ${propertyAlias || ''} ${objectLabel || ''}`);
+								if (organism)    out.appendLine(`  Organism : ${organism}`);
+								if (authorName)  out.appendLine(`  Author   : ${authorName}`);
+								if (authorORCID) out.appendLine(`  ORCID    : ${authorORCID}`);
+								out.appendLine('\u2500\u2500\u2500');
+							});
+							out.appendLine('');
+							out.appendLine(`Total: ${dataRows.length} issue(s) found. See TSV for full results.`);
+							vscode.window.showWarningMessage(`Debug Graph: ${dataRows.length} forbidden pattern(s) found. See PhenoScript output panel.`);
+						}
+					} catch (error) {
+						this._outputChannel.appendLine(`ERROR: ${error.message}`);
+						vscode.window.showErrorMessage(`Debug Graph failed: ${error.message}`);
+						console.error(error);
+					}
+					break;
+
 				case "submit":
 					try {
 						// Resolve project dir
