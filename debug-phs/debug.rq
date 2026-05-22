@@ -1,0 +1,141 @@
+# Query: detect forbidden ontological patterns in PhenoScript descriptions (simple)
+# Requires: fully materialised kb (Whelk inferred types must be present)
+# Run: arq --data kb/insectKG100-kb.ttl --query kb/debug-simple.rq
+# Run (TSV): arq --data kb/insectKG100-kb.ttl --query kb/debug.rq --results TSV 2>/dev/null > kb/debug.tsv
+#
+# Forbidden patterns and why they are wrong:
+#
+#   SDC = Specifically Dependent Continuant (BFO:0000020) — qualities, dispositions, etc.
+#         SDCs are dependent entities: they inhere IN a bearer; they cannot themselves act as bearers
+#         or participate in mereological (part/whole) relations.
+#   IC  = Independent Continuant (BFO:0000004) — anatomical structures, organisms, etc.
+#         ICs are independent entities: they cannot inhere in anything.
+#
+#   Pattern 1  SDC >> X   (SDC has_characteristic X, RO:0000053)
+#              Wrong: has_characteristic (bearer_of) requires the subject to be an IC bearer.
+#              An SDC cannot bear another characteristic — it is itself dependent.
+#
+#   Pattern 2  X << SDC   (X inheres_in SDC, RO:0000052)
+#              Wrong: inheres_in requires the object to be an IC bearer.
+#              An SDC cannot serve as the bearer for another dependent entity.
+#
+#   Pattern 3  SDC > X    (SDC has_part X, BFO:0000051)
+#              Wrong: has_part is a mereological relation between material/spatial entities.
+#              SDCs have no spatial parts.
+#
+#   Pattern 4  SDC < X    (SDC part_of X, BFO:0000050)
+#              Wrong: SDCs cannot be spatial parts of anything; part_of is reserved for ICs.
+#
+#   Pattern 5  X > SDC    (X has_part SDC, BFO:0000051)
+#              Wrong: an SDC cannot be the 'part' in a mereological has_part relation.
+#
+#   Pattern 6  X < SDC    (X part_of SDC, BFO:0000050)
+#              Wrong: an SDC cannot be a spatial whole that other entities are part of.
+#
+#   Pattern 7  X >> IC    (X has_characteristic IC, RO:0000053)
+#              Wrong: has_characteristic expects the object to be an SDC (a quality/disposition).
+#              An IC (e.g. an anatomical structure) cannot inhere in a bearer.
+#
+#   Pattern 8  IC << X    (IC inheres_in X, RO:0000052)
+#              Wrong: inheres_in is only valid for SDCs. An IC is independent
+#              and cannot inhere in anything.
+
+PREFIX obo:     <http://purl.obolibrary.org/obo/>
+PREFIX owl:     <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX n6:      <https://github.com/sergeitarasov/PhenoScript/>
+PREFIX n2:      <http://rs.tdwg.org/dwc/terms/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+SELECT ?errorPattern
+       (SAMPLE(COALESCE(?sLbl, STR(?subject)))  AS ?subjectLabel)
+       (SAMPLE(?pAlias)                          AS ?propertyAlias)
+       (SAMPLE(COALESCE(?oLbl, STR(?object)))   AS ?objectLabel)
+       (SAMPLE(COALESCE(?orgLbl, STR(?org1)))    AS ?organism)
+        (SAMPLE(?author_name)                      AS ?authorName)
+       (SAMPLE(STR(?ORCID_ID))                    AS ?authorORCID)
+       #(SAMPLE(?project_name)                     AS ?projectName)
+      
+WHERE {
+  {  # 1: SDC >> X  (SDC used as bearer)
+    BIND("1: SDC >> X  (SDC as bearer)"        AS ?errorPattern)
+    BIND(obo:RO_0000053                         AS ?property)
+    ?subject  a/rdfs:subClassOf*  obo:BFO_0000020 .
+    ?subject  obo:RO_0000053       ?object .
+  } UNION {
+  # 2: X << SDC  (inheres_in points to an SDC)
+    BIND("2: X << SDC  (inheres_in SDC)"       AS ?errorPattern)
+    BIND(obo:RO_0000052                         AS ?property)
+    ?object   a/rdfs:subClassOf*  obo:BFO_0000020 .
+    ?subject  obo:RO_0000052       ?object .
+  } UNION {
+  # 3: SDC > X  (SDC has_part)
+    BIND("3: SDC > X   (SDC has_part)"         AS ?errorPattern)
+    BIND(obo:BFO_0000051                        AS ?property)
+    ?subject  a/rdfs:subClassOf*  obo:BFO_0000020 .
+    ?subject  obo:BFO_0000051      ?object .
+  } UNION {
+  # 4: SDC < X  (SDC part_of)
+    BIND("4: SDC < X   (SDC part_of)"          AS ?errorPattern)
+    BIND(obo:BFO_0000050                        AS ?property)
+    ?subject  a/rdfs:subClassOf*  obo:BFO_0000020 .
+    ?subject  obo:BFO_0000050      ?object .
+  } UNION {
+  # 5: X > SDC  (has_part SDC)
+    BIND("5: X > SDC   (has_part SDC)"         AS ?errorPattern)
+    BIND(obo:BFO_0000051                        AS ?property)
+    ?object   a/rdfs:subClassOf*  obo:BFO_0000020 .
+    ?subject  obo:BFO_0000051      ?object .
+  } UNION {
+  # 6: X < SDC  (part_of SDC)
+    BIND("6: X < SDC   (part_of SDC)"          AS ?errorPattern)
+    BIND(obo:BFO_0000050                        AS ?property)
+    ?object   a/rdfs:subClassOf*  obo:BFO_0000020 .
+    ?subject  obo:BFO_0000050      ?object .
+  } UNION {
+  # 7: X >> IC  (IC used as characteristic)
+    BIND("7: X >> IC   (IC as characteristic)" AS ?errorPattern)
+    BIND(obo:RO_0000053                         AS ?property)
+    ?object   a/rdfs:subClassOf*  obo:BFO_0000004 .
+    ?subject  obo:RO_0000053       ?object .
+  } UNION {
+  # 8: IC << X  (IC inheres_in)
+    BIND("8: IC << X   (IC inheres_in)"        AS ?errorPattern)
+    BIND(obo:RO_0000052                         AS ?property)
+    ?subject  a/rdfs:subClassOf*  obo:BFO_0000004 .
+    ?subject  obo:RO_0000052       ?object .
+  }
+  OPTIONAL { ?subject  rdfs:label ?sLbl }
+  OPTIONAL { ?object   rdfs:label ?oLbl }
+  BIND(
+    IF(?property = obo:RO_0000053, ">>" ,
+    IF(?property = obo:RO_0000052, "<<" ,
+    IF(?property = obo:BFO_0000051, ">" ,
+    IF(?property = obo:BFO_0000050, "<" ,
+    STR(?property))))) AS ?pAlias)
+
+  # ── Provenance: organism linked to subject via has_trait ─────────────────
+  OPTIONAL {
+    ?org1  n6:PHS_0000017  ?subject .
+    OPTIONAL { ?org1 rdfs:label ?orgLbl . }
+    OPTIONAL {
+      ?org1    dcterms:source   ?project .
+      ?project a               n6:PHS_0000019 .
+      OPTIONAL { ?project rdfs:label        ?project_name . }
+      OPTIONAL { ?project dcterms:contributor ?ORCID_ID .
+        # author name is stored as rdfs:label on the (project, contributor, ORCID) axiom
+        OPTIONAL {
+          ?ann  a                    owl:Axiom ;
+                owl:annotatedSource  ?project ;
+                owl:annotatedProperty dcterms:contributor ;
+                owl:annotatedTarget  ?ORCID_ID ;
+                rdfs:label           ?author_name .
+        }
+      }
+    }
+  }
+}
+#GROUP BY ?errorPattern ?subject ?property ?object
+#ORDER BY ?errorPattern
+GROUP BY ?author_name ?orgLbl ?errorPattern ?subject ?property ?object
+ORDER BY ?author_name ?orgLbl ?errorPattern ?subject ?property ?object
